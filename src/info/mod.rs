@@ -1,26 +1,40 @@
-use thiserror::Error;
-use std::path::Path;
 use crate::printing;
+use std::path::PathBuf;
+use thiserror::Error;
+
+pub mod linux;
 
 #[cfg(target_os = "linux")]
-pub mod linux as system
+use linux as system;
 
+pub use system::{hostname_info, motherboard_info};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Clone)]
+#[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 pub enum InfoError
 {
     #[error("MissingFileError: '{}' isn't an existing file", path.display())]
-    MissingFile {path: PathBuf},
+    MissingFile
+    {
+        path: PathBuf
+    },
 
     #[error("ReadError: couldn't read file '{path}'")]
-    FileRead {path: String},
+    FileRead
+    {
+        path: String
+    },
 
-    #[error("Error: Unexpected Error")]
-    #[default]
-    General,
+    #[error("FileParseError: couldn't parse from file '{path}': {reason}")]
+    FileParseError
+    {
+        path: String, reason: String
+    },
+
+    #[error("Error: Unexpected Error: {0}")]
+    General(String),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Info
 {
     /// Cpu information
@@ -41,7 +55,30 @@ pub struct Info
     pub motherboard_name: String,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+impl Info
+{
+    pub fn read() -> Result<Self, InfoError>
+    {
+        let cpu = Cpu::read()?;
+        let memory = Memory::read()?;
+        let os = OperatingSystem::read()?;
+        let user = Caller::read()?;
+        let hostname = hostname_info()?;
+        let motherboard_name = motherboard_info()?;
+
+        Ok(Self {
+            cpu,
+            memory,
+            os,
+            user,
+            hostname,
+            motherboard_name,
+        })
+    }
+}
+
+
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Cpu
 {
     /// Cpu name
@@ -57,14 +94,14 @@ pub struct Cpu
     pub threads: usize,
 
     /// Cpu clock rate in Megahertz
-    pub clock_rate: usize,
+    pub clock_rate: f64,
 }
 
 impl Cpu
 {
     pub fn read() -> Result<Self, InfoError>
     {
-        if !system::INITIALIZED.lock()
+        if !system::initialized()
         {
             system::init()?;
         }
@@ -73,29 +110,29 @@ impl Cpu
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Memory
 {
     /// Total memory in Mib
-    pub total: f64,
+    pub total: f32,
 
     /// Available memory in Mib
-    pub available: f64,
+    pub available: f32,
 
     /// Used memory in Mib
-    pub used: f64,
+    pub used: f32,
 }
 
 impl Memory
 {
     pub fn read() -> Result<Self, InfoError>
     {
-        if !system::INITIALIZED.lock()
+        if !system::initialized()
         {
             system::init()?;
         }
 
-        system::cpu_info()
+        system::memory_info()
     }
 }
 
@@ -107,32 +144,48 @@ pub struct OperatingSystem
     pub art: printing::OsArt,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default)]
+impl OperatingSystem
+{
+    // TODO: FINISH
+    pub fn read() -> Result<Self, InfoError>
+    {
+        let kind = OsKind::read();
+        let (name, art) = match kind
+        {
+            OsKind::Windows => ("Windows".to_string(), printing::OsArt::Windows),
+            _ => (system::os_name()?, system::os_art()?),
+        };
+
+        Ok(Self { name, kind, art })
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default, Copy)]
 pub enum OsKind
 {
-    Linux
-    {
-        kernel: String,
-        kernel_version: String,
-    },
-    Windows
-    {
-        /// Update version
-        version: String,
+    Linux,
+    Windows,
+    MacOs,
+    FreeBsd,
 
-        /// The release (windows 11, windows 10, etc.)
-        release: String,
-    },
-
-    MacOs
-    {
-        version: String,
-    },
-    Bsd,
-    Unix,
-    
     #[default]
     Unknown,
+}
+
+impl OsKind
+{
+    pub fn read() -> Self
+    {
+        match std::env::consts::OS
+        {
+            "linux" => Self::Linux,
+            "windows" => Self::Windows,
+            "macos" => Self::MacOs,
+            "freebsd" => Self::FreeBsd,
+
+            _ => Self::default(),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
@@ -143,4 +196,9 @@ pub struct Caller
 
     /// The shell running the program
     shell: String,
+}
+
+impl Caller
+{
+    pub fn read() -> Result<Self, InfoError> { system::caller_info() }
 }

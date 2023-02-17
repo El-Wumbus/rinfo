@@ -1,78 +1,160 @@
 use crate::info::*;
-use std::{path::PathBuf, sync::Mutex};
 use lazy_static::lazy_static;
+use std::{env, fs::File, io::Read, path::PathBuf, sync::Mutex};
 
 lazy_static! {
-    static ref INITIALIZED: Mutex<bool> = Mutex::new(false);
+    /// Has the initialization function ran?
+    pub static ref INITIALIZED: Mutex<bool> = Mutex::new(false);
 }
 
 const PROC_CPUINFO: &str = "/proc/cpuinfo";
 const PROC_UPTIME: &str = "/proc/uptime";
 const PROC_MEMINFO: &str = "/proc/meminfo";
+const PROC_HOSTNAME: &str = "/proc/sys/kernel/hostname";
+const SYS_BOARD_VENDOR: &str = "/sys/devices/virtual/dmi/id/board_vendor";
+const SYS_BOARD_NAME: &str = "/sys/devices/virtual/dmi/id/board_name";
+// const
 
 /// Get cpu information on linux platforms using procfs
 mod cpu;
 pub use cpu::*;
+
+/// Get memory information on linux platforms using procfs
+mod memory;
+pub use memory::*;
+
+/// Get information on the caller of the program
+mod caller;
+pub use caller::*;
 
 /// Perform any initalization and pre-checks required
 pub fn init() -> Result<(), InfoError>
 {
     let cpu_info = PathBuf::from(PROC_CPUINFO);
     let uptime_info = PathBuf::from(PROC_UPTIME);
+    let memory_info = PathBuf::from(PROC_MEMINFO);
+    let (sys_board_name, sys_board_vendor) = (
+        PathBuf::from(SYS_BOARD_NAME),
+        PathBuf::from(SYS_BOARD_VENDOR),
+    );
 
     // Ensure the files that we need exist
     if !cpu_info.is_file()
     {
-        return Err(InfoError::MissingFile{path: cpu_info});
+        return Err(InfoError::MissingFile { path: cpu_info });
     }
 
     if !uptime_info.is_file()
     {
-        return Err(InfoError::MissingFile{path: uptime_info});   
+        return Err(InfoError::MissingFile { path: uptime_info });
     }
 
-    let mut state = INITIALIZED.lock().unwrap();
-    *state = true;
+    if !memory_info.is_file()
+    {
+        return Err(InfoError::MissingFile { path: memory_info });
+    }
+
+    if !sys_board_name.is_file()
+    {
+        return Err(InfoError::MissingFile {
+            path: sys_board_name,
+        });
+    }
+
+    if !sys_board_vendor.is_file()
+    {
+        return Err(InfoError::MissingFile {
+            path: sys_board_vendor,
+        });
+    }
+
+    *INITIALIZED.lock().unwrap() = true;
 
     Ok(())
 }
 
-pub memory_info() -> Result<Memory, InfoError>
-{
-    let mut meminfo_file = String::new();
+/// Has the `init()` run?
+pub fn initialized() -> bool { *INITIALIZED.lock().unwrap() }
 
-    if File::open(PROC_MEMINFO).and_then(|mut f| f.read_to_string(&mut meminfo_file)).is_err()
+fn uname_from_uid(uid: u32) -> Option<String>
+{
+    use std::ffi::CStr;
+    use std::mem;
+    use std::ptr;
+
+    let mut result = ptr::null_mut();
+    let amt = match unsafe { libc::sysconf(libc::_SC_GETPW_R_SIZE_MAX) }
     {
-        return Err(InfoError::FileRead{path: PROC_MEMINFO.to_string()});
+        n if n < 0 => 512,
+        n => n as usize,
+    };
+    let mut buf = Vec::with_capacity(amt);
+    let mut passwd: libc::passwd = unsafe { mem::zeroed() };
+
+    match unsafe {
+        libc::getpwuid_r(
+            uid,
+            &mut passwd,
+            buf.as_mut_ptr(),
+            buf.capacity() as libc::size_t,
+            &mut result,
+        )
+    }
+    {
+        0 if !result.is_null() =>
+        {
+            let ptr = passwd.pw_name as *const _;
+            let username = unsafe { CStr::from_ptr(ptr) }.to_str().unwrap().to_owned();
+            Some(username)
+        }
+        _ => None,
+    }
+}
+
+
+pub fn hostname_info() -> Result<String, InfoError>
+{
+    let mut hostname = String::new();
+
+    if File::open(PROC_HOSTNAME)
+        .and_then(|mut f| f.read_to_string(&mut hostname))
+        .is_err()
+    {
+        return Err(InfoError::FileRead {
+            path: PROC_HOSTNAME.to_string(),
+        });
     }
 
-    let meminfo = meminfo_file.split('\n');
-
-    let meminfo_total = meminfo.find(|line| {
-        line.starts_with("MemTotal")
-    });
-
-    let total =
-    meminfo_total
-        .and_then(|line| line.split(':').last())
-        .and_then(|val| val.trim().parse::<f64>() / 1049)
-        .unwrap_or_default();
-
-    let meminfo_available = meminfo.find(|line| {
-        line.starts_with("MemAvailable")
-    });
-
-    let available =
-    meminfo_available
-        .and_then(|line| line.split(':').last().trim().split(' ').next())
-        .and_then(|val| val.trim().parse::<f64>() / 1049)
-        .unwrap_or_default();
-
-    let used = total - available;
-
-    Ok(Memory {
-        total,
-        available,
-        used,
-    })
+    Ok(hostname.trim().to_string())
 }
+
+pub fn motherboard_info() -> Result<String, InfoError>
+{
+    let mut vendor = String::new();
+
+    if File::open(SYS_BOARD_VENDOR)
+        .and_then(|mut f| f.read_to_string(&mut vendor))
+        .is_err()
+    {
+        return Err(InfoError::FileRead {
+            path: SYS_BOARD_VENDOR.to_string(),
+        });
+    }
+
+    let mut name = String::new();
+
+    if File::open(SYS_BOARD_NAME)
+        .and_then(|mut f| f.read_to_string(&mut name))
+        .is_err()
+    {
+        return Err(InfoError::FileRead {
+            path: SYS_BOARD_NAME.to_string(),
+        });
+    }
+
+    Ok(format!("{} {}", vendor.trim(), name.trim()))
+}
+
+pub fn os_name() -> Result<String, InfoError> { Ok("None".to_string()) }
+
+pub fn os_art() -> Result<crate::printing::OsArt, InfoError> { Ok(printing::OsArt::AlpineLinux) }

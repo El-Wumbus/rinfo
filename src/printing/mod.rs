@@ -6,6 +6,7 @@ pub enum OsArt
 {
     ArchLinux,
     AlpineLinux,
+    Windows,
 }
 
 pub fn print_with_logo(os: OsArt, s: &str)
@@ -14,6 +15,7 @@ pub fn print_with_logo(os: OsArt, s: &str)
     {
         OsArt::ArchLinux => ARCH_LINUX,
         OsArt::AlpineLinux => ALPINE_LINUX,
+        _ => "",
     };
 
     let indentation = {
@@ -21,17 +23,19 @@ pub fn print_with_logo(os: OsArt, s: &str)
         let (min, max) = min_max_line_len(art);
         let space_diff = (max - min) / 8;
 
-        if space_diff > 0
+        match space_diff.cmp(&0)
         {
-            for _ in 0..space_diff
+            std::cmp::Ordering::Greater =>
             {
-                indent.push_str("  ");
+                for _ in 0..space_diff
+                {
+                    indent.push_str("  ");
+                }
             }
+            std::cmp::Ordering::Equal => indent.push('\t'),
+            _ => (),
         }
-        else if space_diff == 0
-        {
-            indent.push('\t');
-        }
+
         indent
     };
 
@@ -43,9 +47,9 @@ pub fn print_with_logo(os: OsArt, s: &str)
 fn min_max_line_len(s: &str) -> (usize, usize)
 {
     let mut max = 0;
-    let mut min = s.split("\n").nth(0).unwrap_or("").len();
+    let mut min = s.split('\n').next().unwrap_or("").len();
 
-    for line in s.split("\n")
+    for line in s.split('\n')
     {
         let len = line.len();
 
