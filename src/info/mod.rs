@@ -3,14 +3,19 @@ use humansize::{FormatSize, BINARY};
 use std::path::PathBuf;
 use thiserror::Error;
 
+#[cfg(target_os = "linux")]
 pub mod linux;
 
 #[cfg(target_os = "linux")]
 pub use linux as system;
 
-pub use system::{hostname_info, motherboard_info};
+#[cfg(target_os = "windows")]
+pub mod win;
 
-use self::linux::os_info;
+#[cfg(target_os = "windows")]
+pub use win as system;
+
+pub use system::{hostname_info, motherboard_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 pub enum InfoError
@@ -81,7 +86,7 @@ impl Info
 }
 
 
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Default)]
 pub struct Cpu
 {
     /// Cpu name
@@ -196,7 +201,7 @@ impl OperatingSystem
     pub fn read() -> Result<Self, InfoError>
     {
         let kind = OsKind::read();
-        let (name, art) = os_info()?;
+        let (name, art) = system::os_info()?;
 
         Ok(Self { name, kind, art })
     }
