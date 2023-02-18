@@ -119,12 +119,14 @@ fn cpu_name(cpu_info: Rc<String>) -> Result<String, InfoError>
 }
 
 /// Returns the cpu uptime (in seconds)
-fn cpu_uptime(uptime: Rc<String>) -> f64
+fn cpu_uptime(uptime: Rc<String>) -> usize
 {
     let mut uptime = uptime.split(' ');
-    uptime
+    let uptime = uptime
         .next()
         .unwrap_or_default()
-        .parse()
-        .unwrap_or_default()
+        .parse::<f64>()
+        .unwrap_or_default();
+
+    (uptime * 1000.0) as usize
 }

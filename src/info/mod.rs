@@ -1,5 +1,5 @@
 use crate::printing;
-use humansize::{format_size, DECIMAL};
+use humansize::{FormatSize, BINARY};
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -87,8 +87,8 @@ pub struct Cpu
     /// Cpu name
     pub name: String,
 
-    /// Cpu uptime in seconds
-    pub uptime: f64,
+    /// Cpu uptime in milliseconds
+    pub uptime: usize,
 
     /// Core count
     pub cores: usize,
@@ -104,13 +104,18 @@ impl std::fmt::Display for Cpu
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
+        use chrono::Duration;
+        use chrono_humanize::{Accuracy, HumanTime, Tense};
+        let uptime = HumanTime::from(Duration::milliseconds(-(self.uptime as i64)));
+        dbg!(self.uptime, uptime);
         write!(
             f,
-            "CPU: {}@{:.2}GHz ({} cores, {} threads)",
+            "CPU: {}@{:.2}GHz ({} cores, {} threads)\nUPTIME: {}",
             self.name,
             self.clock_rate / 1000.0,
             self.cores,
-            self.threads
+            self.threads,
+            uptime.to_text_en(Accuracy::Precise, Tense::Present)
         )
     }
 }
@@ -148,9 +153,9 @@ impl std::fmt::Display for Memory
         write!(
             f,
             "RAM: {}/{} ({} available)",
-            format_size(self.used, DECIMAL),
-            format_size(self.total, DECIMAL),
-            format_size(self.available, DECIMAL),
+            self.used.format_size(BINARY),
+            self.total.format_size(BINARY),
+            self.available.format_size(BINARY),
         )
     }
 }

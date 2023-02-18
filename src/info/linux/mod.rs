@@ -166,5 +166,5 @@ pub fn motherboard_info() -> Result<String, InfoError>
         });
     }
 
-    Ok(format!("{} {}", vendor.trim(), name.trim()))
+    Ok(format!("{} ({})", name.trim(), vendor.trim()))
 }
