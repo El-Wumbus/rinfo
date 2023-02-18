@@ -112,7 +112,6 @@ impl std::fmt::Display for Cpu
         use chrono::Duration;
         use chrono_humanize::{Accuracy, HumanTime, Tense};
         let uptime = HumanTime::from(Duration::milliseconds(-(self.uptime as i64)));
-        dbg!(self.uptime, uptime);
         write!(
             f,
             "CPU: {}@{:.2}GHz ({} cores, {} threads)\nUPTIME: {}",
