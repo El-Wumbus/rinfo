@@ -125,7 +125,6 @@ fn uname_from_uid(uid: u32) -> Option<String>
     }
 }
 
-
 pub fn hostname_info() -> Result<String, InfoError>
 {
     let mut hostname = String::new();

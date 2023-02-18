@@ -6,7 +6,7 @@ use thiserror::Error;
 pub mod linux;
 
 #[cfg(target_os = "linux")]
-use linux as system;
+pub use linux as system;
 
 pub use system::{hostname_info, motherboard_info};
 
