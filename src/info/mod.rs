@@ -1,4 +1,5 @@
 use crate::printing;
+use humansize::{format_size, DECIMAL};
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -8,6 +9,8 @@ pub mod linux;
 use linux as system;
 
 pub use system::{hostname_info, motherboard_info};
+
+use self::linux::os_info;
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 pub enum InfoError
@@ -97,6 +100,21 @@ pub struct Cpu
     pub clock_rate: f64,
 }
 
+impl std::fmt::Display for Cpu
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(
+            f,
+            "CPU: {}@{:.2}GHz ({} cores, {} threads)",
+            self.name,
+            self.clock_rate / 1000.0,
+            self.cores,
+            self.threads
+        )
+    }
+}
+
 impl Cpu
 {
     pub fn read() -> Result<Self, InfoError>
@@ -113,15 +131,30 @@ impl Cpu
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Memory
 {
-    /// Total memory in Mib
-    pub total: f32,
+    /// Total memory in Bytes
+    pub total: u64,
 
-    /// Available memory in Mib
-    pub available: f32,
+    /// Available memory in Bytes
+    pub available: u64,
 
-    /// Used memory in Mib
-    pub used: f32,
+    /// Used memory in Bytes
+    pub used: u64,
 }
+
+impl std::fmt::Display for Memory
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(
+            f,
+            "RAM: {}/{} ({} available)",
+            format_size(self.used, DECIMAL),
+            format_size(self.total, DECIMAL),
+            format_size(self.available, DECIMAL),
+        )
+    }
+}
+
 
 impl Memory
 {
@@ -144,17 +177,21 @@ pub struct OperatingSystem
     pub art: printing::OsArt,
 }
 
+impl std::fmt::Display for OperatingSystem
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "OS: {} ({})", self.name, self.kind)
+    }
+}
+
 impl OperatingSystem
 {
     // TODO: FINISH
     pub fn read() -> Result<Self, InfoError>
     {
         let kind = OsKind::read();
-        let (name, art) = match kind
-        {
-            OsKind::Windows => ("Windows".to_string(), printing::OsArt::Windows),
-            _ => (system::os_name()?, system::os_art()?),
-        };
+        let (name, art) = os_info()?;
 
         Ok(Self { name, kind, art })
     }
@@ -188,6 +225,23 @@ impl OsKind
     }
 }
 
+impl std::fmt::Display for OsKind
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        let s = match self
+        {
+            Self::Linux => "linux",
+            Self::Windows => "windows",
+            Self::MacOs => "macos",
+            Self::FreeBsd => "freebsd",
+
+            _ => "Unknown",
+        };
+        write!(f, "{s}")
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 pub struct Caller
 {
@@ -197,6 +251,15 @@ pub struct Caller
     /// The shell running the program
     shell: String,
 }
+
+impl std::fmt::Display for Caller
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "USER: {}\nSHELL: {}", self.name, self.shell)
+    }
+}
+
 
 impl Caller
 {

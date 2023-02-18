@@ -63,7 +63,7 @@ fn with_both(first: &str, second: &str) -> String
         let sec = second.get(i).unwrap_or(&"");
 
 
-        s.push_str(&format!("{fir}"));
+        s.push_str(fir);
 
         for _ in 0..=max_len - fir.len() + 2
         {

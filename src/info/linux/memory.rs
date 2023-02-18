@@ -45,7 +45,7 @@ pub fn memory_info() -> Result<Memory, InfoError>
                 reason: e.to_string(),
             })
         }
-    } / 1049.0;
+    } * 1024.0;
     let meminfo_available = match meminfo.find(|line| line.starts_with("MemAvailable"))
     {
         Some(x) => x,
@@ -76,13 +76,13 @@ pub fn memory_info() -> Result<Memory, InfoError>
                 reason: e.to_string(),
             })
         }
-    } / 1049.0;
+    } * 1024.0;
 
     let used = total - available;
 
     Ok(Memory {
-        total,
-        available,
-        used,
+        total: total as u64,
+        available: available as u64,
+        used: used as u64,
     })
 }

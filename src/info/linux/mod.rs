@@ -13,7 +13,8 @@ const PROC_MEMINFO: &str = "/proc/meminfo";
 const PROC_HOSTNAME: &str = "/proc/sys/kernel/hostname";
 const SYS_BOARD_VENDOR: &str = "/sys/devices/virtual/dmi/id/board_vendor";
 const SYS_BOARD_NAME: &str = "/sys/devices/virtual/dmi/id/board_name";
-// const
+const ETC_OS_RELEASE: &str = "/etc/os-release";
+const ETC_LSB_RELEASE: &str = "/etc/lsb-release";
 
 /// Get cpu information on linux platforms using procfs
 mod cpu;
@@ -27,6 +28,10 @@ pub use memory::*;
 mod caller;
 pub use caller::*;
 
+/// Get information about the operating system
+mod operating_system;
+pub use operating_system::*;
+
 /// Perform any initalization and pre-checks required
 pub fn init() -> Result<(), InfoError>
 {
@@ -37,6 +42,8 @@ pub fn init() -> Result<(), InfoError>
         PathBuf::from(SYS_BOARD_NAME),
         PathBuf::from(SYS_BOARD_VENDOR),
     );
+    let lsb_release_info = PathBuf::from(ETC_LSB_RELEASE);
+    let os_release_info = PathBuf::from(ETC_OS_RELEASE);
 
     // Ensure the files that we need exist
     if !cpu_info.is_file()
@@ -65,6 +72,13 @@ pub fn init() -> Result<(), InfoError>
     {
         return Err(InfoError::MissingFile {
             path: sys_board_vendor,
+        });
+    }
+
+    if !lsb_release_info.is_file() && !os_release_info.is_file()
+    {
+        return Err(InfoError::MissingFile {
+            path: lsb_release_info,
         });
     }
 
@@ -154,7 +168,3 @@ pub fn motherboard_info() -> Result<String, InfoError>
 
     Ok(format!("{} {}", vendor.trim(), name.trim()))
 }
-
-pub fn os_name() -> Result<String, InfoError> { Ok("None".to_string()) }
-
-pub fn os_art() -> Result<crate::printing::OsArt, InfoError> { Ok(printing::OsArt::AlpineLinux) }
