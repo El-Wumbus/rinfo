@@ -13,10 +13,12 @@ libc = "0.2"
 humansize = { version = "2.1", features = ["impl_style"] }
 chrono-humanize   = "0.2"
 chrono = "0.4"
+
+[target.'cfg(windows)'.dependencies]
 winreg = "0.11.0"
 wmi = "0.11.4"
 
-[dependencies.windows]
+[target.'cfg(windows)'.dependencies.windows]
 version = "0.44"
 features = [
     "Win32_System",
