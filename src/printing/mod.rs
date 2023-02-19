@@ -2,6 +2,7 @@ pub mod ascii_art;
 pub use ascii_art::*;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
+#[allow(dead_code)]
 pub enum OsArt
 {
     ArchLinux,
@@ -19,6 +20,8 @@ pub fn print_with_logo(os: OsArt, s: &str)
         OsArt::ArchLinux => ARCH_LINUX,
         OsArt::AlpineLinux => ALPINE_LINUX,
         OsArt::Debian => DEBIAN,
+        OsArt::Windows1011 => WINDOWS_10_11,
+        OsArt::Windows => WINDOWS,
         _ => UNKNOWN,
     };
 

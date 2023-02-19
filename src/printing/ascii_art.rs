@@ -57,6 +57,41 @@ pub const DEBIAN: &str = r#"          _,met$$$$$gg.
           `"Y$b._
               `""""#;
 
+pub const WINDOWS_10_11: &str = r#"################  ################
+################  ################
+################  ################
+################  ################
+################  ################
+################  ################
+################  ################
+                                  
+################  ################
+################  ################
+################  ################
+################  ################
+################  ################
+################  ################
+################  ################"#;
+
+pub const WINDOWS: &str = r#"                    ....,,:;+ccllll
+      ...,,+:;  cllllllllllllllllll
+,cclllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+                                   
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+llllllllllllll  lllllllllllllllllll
+`'ccllllllllll  lllllllllllllllllll
+      `' \\\\*::  :ccllllllllllllllll
+                       ````''*::cll
+                                 ``"#;
+
 pub const UNKNOWN: &str = r#"           @@@%%%%%%%%%@@
         @@@%%%%%%%%%#######%@@
       @@@@%%%%%%%######?######%@
