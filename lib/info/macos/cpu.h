@@ -3,10 +3,11 @@
 
 #ifndef __APPLE__
 #include <stdint.h>
+#else
+typedef unsigned long long uint64_t;
 #endif
 
 typedef __SIZE_TYPE__ size_t;
-typedef unsigned long long uint64_t;
 
 struct MacOsCpuCount {
   size_t core_count;
