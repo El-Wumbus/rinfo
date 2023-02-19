@@ -1,0 +1,27 @@
+pkgname="rinfo-git"
+_pkgname="rinfo"
+pkgver=0.2
+pkgrel=1
+pkgdesc="Get basic information about your system from the command-line."
+arch=("x86_64" "x86")
+url="https://github.com/Sir-Bobert-II/rinfo"
+license=("APACHE")
+provides=("rinfo")
+makedepends=("rust")
+source=( "$_pkgname::git+https://github.com/Sir-Bobert-II/rinfo.git")
+sha256sums=("SKIP")
+
+pkgver() {
+  cd "$_pkgname"
+  printf "r%s.$s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd "$_pkgname"
+  cargo build --release
+}
+
+package() {
+  cd "$_pkgname"
+  install target/release/rinfo -Dm755 "${pkgdir}/usr/bin/rinfo"
+}
