@@ -140,7 +140,7 @@ fn caller_shell() -> Result<String, InfoError>
     }
 
 
-    Ok(s.to_string())
+    Ok(s.trim().to_string())
 }
 
 /// Get the username of the caller
@@ -177,5 +177,5 @@ fn caller_name() -> Result<String, InfoError>
         Err(e) => return Err(InfoError::General(format!("Invalid UTF-8 sequence: {e}"))),
     };
 
-    Ok(s.to_string())
+    Ok(s.trim().to_string())
 }
