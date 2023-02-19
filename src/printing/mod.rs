@@ -13,19 +13,27 @@ pub enum OsArt
     Unknown,
 }
 
+impl std::fmt::Display for OsArt
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        let art = match self
+        {
+            OsArt::ArchLinux => ARCH_LINUX,
+            OsArt::AlpineLinux => ALPINE_LINUX,
+            OsArt::Debian => DEBIAN,
+            OsArt::Windows1011 => WINDOWS_10_11,
+            OsArt::Windows => WINDOWS,
+            _ => UNKNOWN,
+        };
+
+        write!(f, "{art}")
+    }
+}
+
 pub fn print_with_logo(os: OsArt, s: &str)
 {
-    let art = match os
-    {
-        OsArt::ArchLinux => ARCH_LINUX,
-        OsArt::AlpineLinux => ALPINE_LINUX,
-        OsArt::Debian => DEBIAN,
-        OsArt::Windows1011 => WINDOWS_10_11,
-        OsArt::Windows => WINDOWS,
-        _ => UNKNOWN,
-    };
-
-    print!("{}", with_both(art, s));
+    print!("{}", with_both(&os.to_string(), s));
 }
 
 /// Returns the length of the longest line in the string

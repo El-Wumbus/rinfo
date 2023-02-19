@@ -15,8 +15,8 @@ pub const ARCH_LINUX: &str = r#"                   -`
      /ossssssss/        +ssssooo/-
    `/ossssso+/:-        -:/+osssso+-
   `+sso+:-`                 `.-/+oso:
- `++:.                           `-/+/
- .`                                 `"#;
+ `++:.                           `-/+\
+ .`                                 ` ."#;
 
 pub const ALPINE_LINUX: &str = r#"       .hddddddddddddddddddddddh.
       :dddddddddddddddddddddddddd:
