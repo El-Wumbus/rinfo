@@ -18,6 +18,7 @@ pub use win as system;
 pub use system::{hostname_info, motherboard_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[allow(dead_code)]
 pub enum InfoError
 {
     #[error("MissingFileError: '{}' isn't an existing file", path.display())]
@@ -93,7 +94,7 @@ pub struct Cpu
     pub name: String,
 
     /// Cpu uptime in milliseconds
-    pub uptime: usize,
+    pub uptime: u64,
 
     /// Core count
     pub cores: usize,

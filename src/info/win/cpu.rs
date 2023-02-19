@@ -7,7 +7,7 @@ use wmi::{COMLibrary, Variant, WMIConnection};
 pub fn cpu_info() -> Result<Cpu, InfoError>
 {
     let com_con = COMLibrary::new().unwrap();
-    let wmi_con = Rc::new(WMIConnection::new(com_con.into()).unwrap());
+    let wmi_con = Rc::new(WMIConnection::new(com_con).unwrap());
 
     let mut system_info = SYSTEM_INFO::default();
 
@@ -15,7 +15,7 @@ pub fn cpu_info() -> Result<Cpu, InfoError>
         GetSystemInfo(&mut system_info);
     }
 
-    let uptime = unsafe { GetTickCount64() } as usize;
+    let uptime = unsafe { GetTickCount64() };
     let (cores, threads) = core_thread_count(system_info, Rc::clone(&wmi_con))?;
     let (name, clock_rate) = cpu_name_clock(Rc::clone(&wmi_con))?;
 
@@ -30,11 +30,11 @@ pub fn cpu_info() -> Result<Cpu, InfoError>
 
 fn cpu_name_clock(wmi_con: Rc<WMIConnection>) -> Result<(String, f64), InfoError>
 {
+    let mut name = "UNAVAILABLE";
+    let mut clock = 0.0;
     let results: Vec<HashMap<String, Variant>> = wmi_con
         .raw_query("SELECT Name,CurrentClockSpeed FROM Win32_Processor")
         .unwrap();
-    let mut name = "UNAVAILABLE";
-    let mut clock = 0.0;
 
     if !results.is_empty()
     {
@@ -48,10 +48,9 @@ fn cpu_name_clock(wmi_con: Rc<WMIConnection>) -> Result<(String, f64), InfoError
             }
             Some(x) =>
             {
-                match x
+                if let Variant::String(x) = x
                 {
-                    Variant::String(x) => name = &x.trim(),
-                    _ => (),
+                    name = x.trim()
                 }
             }
         };
@@ -65,10 +64,9 @@ fn cpu_name_clock(wmi_con: Rc<WMIConnection>) -> Result<(String, f64), InfoError
             }
             Some(x) =>
             {
-                match x
+                if let Variant::UI4(x) = x
                 {
-                    Variant::UI4(x) => clock = f64::from(*x),
-                    _ => (),
+                    clock = f64::from(*x)
                 }
             }
         };
@@ -89,15 +87,14 @@ fn core_thread_count(
 ) -> Result<(usize, usize), InfoError>
 {
     let threads = system_info.dwNumberOfProcessors as usize;
-    let mut cores = threads;
 
     let results: Vec<HashMap<String, Variant>> = wmi_con
         .raw_query("SELECT NumberOfCores FROM Win32_Processor")
         .unwrap();
 
-    if !results.is_empty()
+    let cores = if !results.is_empty()
     {
-        cores = match results.first().unwrap().get("NumberOfCores")
+        match results.first().unwrap().get("NumberOfCores")
         {
             None =>
             {
@@ -114,14 +111,14 @@ fn core_thread_count(
                     _ => 0,
                 }
             }
-        };
+        }
     }
     else
     {
         return Err(InfoError::General(
             "WMI: 'NumberOfCores from Win32_Processor' failed: empty result".to_string(),
         ));
-    }
+    };
 
     Ok((cores, threads))
 }

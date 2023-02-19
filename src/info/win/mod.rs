@@ -63,7 +63,6 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
         .unwrap();
     let major_version_num: u32 = cur_ver.get_value("CurrentMajorVersionNumber").unwrap();
     let minor_version_num: u32 = cur_ver.get_value("CurrentMinorVersionNumber").unwrap();
-    let info = cur_ver.query_info().unwrap();
     let version_string = format!("{major_version_num}.{minor_version_num:02}");
     let os_str = if version_map.contains_key(&*version_string)
     {
@@ -81,7 +80,15 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
     Ok((os_str, os_art))
 }
 
-pub fn motherboard_info() -> Result<String, InfoError> { Ok(String::new()) }
+pub fn motherboard_info() -> Result<String, InfoError>
+{
+    let name = "NAME_UNAVAILABLE";
+    let vendor = "VENDOR_UNAVAILABLE";
+
+    // TODO: Grab the motherboard info
+
+    Ok(format!("{} ({})", name.trim(), vendor.trim()))
+}
 
 /// Get the computer's hostname
 pub fn hostname_info() -> Result<String, InfoError>
