@@ -8,6 +8,7 @@ pub enum OsArt
     AlpineLinux,
     Debian,
     Windows,
+    Windows1011,
     Unknown,
 }
 

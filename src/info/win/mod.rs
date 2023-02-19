@@ -1,6 +1,8 @@
 use crate::info::*;
 use lazy_static::lazy_static;
-use std::{mem::size_of, path::PathBuf, sync::Mutex};
+use std::{collections::HashMap, mem::size_of, path::PathBuf, sync::Mutex};
+use winreg::enums::*;
+use winreg::RegKey;
 
 use windows::Win32::{
     Foundation::{CloseHandle, GetLastError, ERROR_NO_MORE_FILES},
@@ -45,7 +47,38 @@ pub fn initialized() -> bool { *INITIALIZED.lock().unwrap() }
 
 pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
 {
-    Ok(("String".to_string(), crate::printing::OsArt::Windows))
+    let version_map = HashMap::from([
+        ("10.00", "10/11"),
+        ("6.30", "8.1"),
+        ("6.20", "8"),
+        ("6.10", "7"),
+        ("6.00", "Vista"),
+        ("5.20", "Server 2003"),
+        ("5.10", "XP"),
+    ]);
+
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let cur_ver = hklm
+        .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+        .unwrap();
+    let major_version_num: u32 = cur_ver.get_value("CurrentMajorVersionNumber").unwrap();
+    let minor_version_num: u32 = cur_ver.get_value("CurrentMinorVersionNumber").unwrap();
+    let info = cur_ver.query_info().unwrap();
+    let version_string = format!("{major_version_num}.{minor_version_num:02}");
+    let os_str = if version_map.contains_key(&*version_string)
+    {
+        format!("Windows {}", version_map.get(&*version_string).unwrap())
+    }
+    else
+    {
+        "Windows".to_string()
+    };
+    let os_art = match &*os_str
+    {
+        "Windows 10/11" => crate::printing::OsArt::Windows1011, 
+        _ => crate::printing::OsArt::Windows,
+    };
+    Ok((os_str, os_art))
 }
 
 pub fn motherboard_info() -> Result<String, InfoError> { Ok(String::new()) }
