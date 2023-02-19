@@ -75,7 +75,7 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
     };
     let os_art = match &*os_str
     {
-        "Windows 10/11" => crate::printing::OsArt::Windows1011, 
+        "Windows 10/11" => crate::printing::OsArt::Windows1011,
         _ => crate::printing::OsArt::Windows,
     };
     Ok((os_str, os_art))
