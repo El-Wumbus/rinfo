@@ -1,11 +1,14 @@
 #ifndef INFO_MACOS_CPU
 #define INFO_MACOS_CPU
-#include <stddef.h>
+
+#ifndef __APPLE__
+typedef __SIZE_TYPE__ size_t;
 #include <stdint.h>
-struct MacOsCpuCount
-{
-    size_t core_count;
-    size_t thread_count;
+#endif
+
+struct MacOsCpuCount {
+  size_t core_count;
+  size_t thread_count;
 };
 
 double macos_uptime();

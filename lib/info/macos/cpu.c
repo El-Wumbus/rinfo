@@ -1,7 +1,7 @@
+#include "cpu.h"
 #ifdef __APPLE__
 #include <time.h>
 #include <string.h>
-#include "cpu.h"
 #include <sys/sysctl.h>
 #include <sys/types.h>
 
@@ -68,11 +68,11 @@ int macos_cpu_count(struct MacOsCpuCount* info)
 #else
 double macos_uptime()
 {
-    return -1.0
+    return -1.0;
 }
 
 int macos_cpu_name(char *buffer, size_t buffer_len)
 {
-    return -1
+    return -1;
 }
 #endif
