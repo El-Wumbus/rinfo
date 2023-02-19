@@ -15,6 +15,12 @@ pub mod win;
 #[cfg(target_os = "windows")]
 pub use win as system;
 
+#[cfg(target_os = "macos")]
+pub mod macos;
+
+#[cfg(target_os = "macos")]
+pub use macos as system;
+
 pub use system::{hostname_info, motherboard_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
@@ -138,7 +144,7 @@ impl Cpu
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Default)]
 pub struct Memory
 {
     /// Total memory in Bytes
@@ -252,7 +258,7 @@ impl std::fmt::Display for OsKind
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
 pub struct Caller
 {
     /// The user running this program

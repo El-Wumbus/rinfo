@@ -1,3 +1,4 @@
+#![allow(non_camel_case_types)]
 use std::fs::read_to_string;
 
 use serde::{Deserialize, Serialize};

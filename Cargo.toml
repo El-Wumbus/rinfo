@@ -33,3 +33,7 @@ features = [
     "Win32_System_Kernel",
     "Win32_System_Diagnostics_ToolHelp",
 ]
+
+[build-dependencies]
+bindgen = "0.64"
+cc = { version = "1.0", features = ["parallel"] }
