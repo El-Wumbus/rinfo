@@ -1,6 +1,6 @@
 #include "cpu.h"
+
 #ifdef __APPLE__
-#include <time.h>
 #include <string.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>

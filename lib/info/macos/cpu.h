@@ -2,9 +2,11 @@
 #define INFO_MACOS_CPU
 
 #ifndef __APPLE__
-typedef __SIZE_TYPE__ size_t;
 #include <stdint.h>
 #endif
+
+typedef __SIZE_TYPE__ size_t;
+typedef unsigned long long uint64_t;
 
 struct MacOsCpuCount {
   size_t core_count;
