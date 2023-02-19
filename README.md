@@ -1,3 +1,4 @@
+
 # RINFO
 
 [PKGBUILD]: https://github.com/Sir-Bobert-II/rinfo/raw/master/packages/PKGBUILD
@@ -9,7 +10,7 @@ until the information collection methods have stabilized.
 
 ## Usage
 
-`rinfo` has configurable output. This can be achived through command-line flags or
+`rinfo` has configurable output. This can be achieved through command-line flags or
 with a configuration file. The default output looks similar to the following:
 
 ```txt
@@ -89,14 +90,14 @@ omitArt = false
 verticalArt = true
 ```
 
-By default, any flags passed to the program will take precidence over the configuration.
-This meaning, with the above configuration, the output of `rinfo --omit-art` won't contian the art
-depite the configuration file specifing otherwise.
+By default, any flags passed to the program will take precedence over the configuration.
+This meaning, with the above configuration, the output of `rinfo --omit-art` won't contain the art
+despite the configuration file specifying otherwise.
 
 ## Installing
 
-When there's a full release of `rinfo`, there will a windows installer and built packages. Until then,
-manual compilation will have to suffice (exept on Arch Linux, theres a [pkgbuild][PKGBUILD]).
+When there's a full release of `rinfo`, there will a Windows installer and built packages. Until then,
+manual compilation will have to suffice (except on Arch Linux, there's a [pkgbuild][PKGBUILD]).
 
 ### Linux
 
@@ -120,7 +121,7 @@ manual compilation will have to suffice (exept on Arch Linux, theres a [pkgbuild
     install -Dvm755 target/release/rinfo /usr/bin/rinfo
     ```
 
-#### Arch Lnux
+#### Arch Linux
 
 1. Download the [`PKGBUILD`][PKGBUILD]
     
