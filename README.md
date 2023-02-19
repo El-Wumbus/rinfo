@@ -1,4 +1,3 @@
-
 # RINFO
 
 [PKGBUILD]: https://github.com/Sir-Bobert-II/rinfo/raw/master/packages/PKGBUILD
