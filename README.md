@@ -4,7 +4,7 @@
 
 Get basic information about your system from the command-line.
 `rinfo` is a rust "rewrite" of `qinfo`. Unlike `qinfo`, `rinfo` is cross-platform
-(Linux and Windows currently supported). `rinfo` is in beta, and it will stay there
+(Linux, MacOS and Windows are currently supported). `rinfo` is in beta, and it will stay there
 until the information collection methods have stabilized.
 
 ## Usage
@@ -98,7 +98,7 @@ despite the configuration file specifying otherwise.
 When there's a full release of `rinfo`, there will a Windows installer and built packages. Until then,
 manual compilation will have to suffice (except on Arch Linux, there's a [pkgbuild][PKGBUILD]).
 
-### Linux
+### Linux & MacOS
 
 [Arch Linux](#arch-lnux) does have differing instructions, skip there if needed.
 
