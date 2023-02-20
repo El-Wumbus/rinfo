@@ -46,8 +46,11 @@ pub enum InfoError
     },
 
     #[error("SysctlError: couldn't get '{name}'")]
-    Sysctl {name: String},
-    
+    Sysctl
+    {
+        name: String
+    },
+
     #[error("Error: Unexpected Error: {0}")]
     General(String),
 }
@@ -94,7 +97,6 @@ impl Info
         })
     }
 }
-
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Default)]
 pub struct Cpu
@@ -173,7 +175,6 @@ impl std::fmt::Display for Memory
         )
     }
 }
-
 
 impl Memory
 {
@@ -278,7 +279,6 @@ impl std::fmt::Display for Caller
         write!(f, "USER: {}\nSHELL: {}", self.name, self.shell)
     }
 }
-
 
 impl Caller
 {

@@ -17,7 +17,6 @@ use windows::Win32::{
     },
 };
 
-
 pub mod cpu;
 pub use cpu::*;
 
@@ -110,7 +109,6 @@ pub fn hostname_info() -> Result<String, InfoError>
 
         return Err(InfoError::General(m.to_string()));
     }
-
 
     let s = match std::str::from_utf8(&buffer)
     {

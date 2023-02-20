@@ -1,6 +1,7 @@
 use std::{env, path::PathBuf};
 
-fn main() {
+fn main()
+{
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
 

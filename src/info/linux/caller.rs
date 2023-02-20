@@ -8,7 +8,6 @@ pub fn caller_info() -> Result<Caller, InfoError>
     })
 }
 
-
 fn caller_shell() -> Result<String, InfoError>
 {
     let shell = match env::var("0")
@@ -46,7 +45,6 @@ fn caller_shell() -> Result<String, InfoError>
 
     Ok(shell)
 }
-
 
 fn caller_user() -> Result<String, InfoError>
 {

@@ -6,7 +6,9 @@ use structopt::StructOpt;
 mod info;
 mod printing;
 
-#[derive(Debug, StructOpt, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
+#[derive(
+    Debug, StructOpt, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default,
+)]
 #[structopt(name = "rinfo", about = "Get information about your system")]
 #[serde(rename_all = "camelCase")]
 struct Config

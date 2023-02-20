@@ -139,7 +139,6 @@ fn caller_shell() -> Result<String, InfoError>
         .to_string());
     }
 
-
     Ok(s.trim().to_string())
 }
 
