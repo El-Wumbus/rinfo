@@ -1,5 +1,5 @@
 #![allow(non_camel_case_types)]
-use std::fs::read_to_string;
+use std::{fs::read_to_string, process::exit};
 
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
@@ -103,7 +103,11 @@ fn main()
 
     config.combine(Config::from_args());
 
-    let info = info::Info::read().unwrap();
+    let info = match info::Info::read()
+    {
+        Ok(i) => i,
+        Err(e) => exit(e.report()),
+    };
     let mut info_str = String::new();
 
     if !config.omit_cpu

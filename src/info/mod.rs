@@ -55,6 +55,23 @@ pub enum InfoError
     General(String),
 }
 
+impl InfoError
+{
+    pub fn report(&self) -> i32
+    {
+        let code = match self
+        {
+            Self::FileParseError { path: _, reason: _ } => 65,
+            Self::Sysctl { name: _ } => 71,
+            Self::MissingFile { path: _ } => 72,
+            Self::FileRead { path: _ } => 74,
+            _ => 64,
+        };
+        eprintln!("{self}");
+        code
+    }
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Info
 {
