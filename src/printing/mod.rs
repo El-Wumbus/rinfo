@@ -10,6 +10,7 @@ pub enum OsArt
     Debian,
     Windows,
     Windows1011,
+    MacOS,
     Unknown,
 }
 
@@ -24,6 +25,7 @@ impl std::fmt::Display for OsArt
             OsArt::Debian => DEBIAN,
             OsArt::Windows1011 => WINDOWS_10_11,
             OsArt::Windows => WINDOWS,
+            OsArt::MacOS => MACOS,
             _ => UNKNOWN,
         };
 

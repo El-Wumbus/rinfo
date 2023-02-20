@@ -72,7 +72,7 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
 
     Ok((
         format!("MacOS {}", os_display_name),
-        crate::printing::OsArt::Unknown,
+        crate::printing::OsArt::MacOS,
     ))
 }
 
