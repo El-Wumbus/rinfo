@@ -7,7 +7,8 @@ use libc::{
     KERN_SUCCESS,
 };
 
-pub fn memory_info() -> Result<Memory, InfoError> {
+pub fn memory_info() -> Result<Memory, InfoError>
+{
     // Get the size of each page
     let mut pagesize: usize = 0;
     let mut mib: [c_int; 2] = [CTL_HW, HW_PAGESIZE];
@@ -82,7 +83,8 @@ pub fn memory_info() -> Result<Memory, InfoError> {
             &mut vm_stat as *mut vm_statistics64_data_t as host_info_t,
             &mut count,
         ) != KERN_SUCCESS
-    } {
+    }
+    {
         return Err(InfoError::General("Failed to get VM stats".to_string()));
     }
 

@@ -4,7 +4,8 @@ use libc::{c_void, difftime, sysctl, time, time_t, timeval, CTL_KERN, KERN_BOOTT
 
 use super::*;
 
-pub fn cpu_info() -> Result<Cpu, InfoError> {
+pub fn cpu_info() -> Result<Cpu, InfoError>
+{
     let uptime = uptime()?;
     let name = cpu_name()?;
     let clock_rate = cpu_frequency()?;
@@ -19,7 +20,8 @@ pub fn cpu_info() -> Result<Cpu, InfoError> {
     })
 }
 
-fn uptime() -> Result<u128, InfoError> {
+fn uptime() -> Result<u128, InfoError>
+{
     // Initialize the structure
     let mut boottime: timeval = timeval {
         tv_sec: 0,
@@ -43,7 +45,7 @@ fn uptime() -> Result<u128, InfoError> {
             name: "hw.boottime".to_string(),
         });
     }
-    
+
     // // Get the time elapsed (assuming the current time hasn't been changed)
     let bsec: time_t = boottime.tv_sec;
     let csec: time_t = unsafe { time(null::<i64>() as *mut i64) };
@@ -52,19 +54,23 @@ fn uptime() -> Result<u128, InfoError> {
     Ok(uptime)
 }
 
-fn cpu_frequency() -> Result<f64, InfoError> {
+fn cpu_frequency() -> Result<f64, InfoError>
+{
     let mut frequency: u64 = 0;
-    if unsafe { macos_cpu_frequency(&mut frequency as *mut u64) } < 0 {
+    if unsafe { macos_cpu_frequency(&mut frequency as *mut u64) } < 0
+    {
         return Err(InfoError::General("".to_string()));
     }
 
     Ok(frequency as f64)
 }
 
-fn cpu_name() -> Result<String, InfoError> {
+fn cpu_name() -> Result<String, InfoError>
+{
     let mut buffer = [0x0; 2048];
 
-    if unsafe { macos_cpu_name(buffer.as_mut_ptr(), buffer.len()) } < 0 {
+    if unsafe { macos_cpu_name(buffer.as_mut_ptr(), buffer.len()) } < 0
+    {
         return Err(InfoError::General("Unable to get CPU name".to_string()));
     }
 
@@ -75,13 +81,15 @@ fn cpu_name() -> Result<String, InfoError> {
     Ok(s.trim().to_string())
 }
 
-fn cpu_count() -> Result<(usize, usize), InfoError> {
+fn cpu_count() -> Result<(usize, usize), InfoError>
+{
     let mut buffer = MacOsCpuCount {
         core_count: 0,
         thread_count: 0,
     };
 
-    if unsafe { macos_cpu_count(&mut buffer) } < 0 {
+    if unsafe { macos_cpu_count(&mut buffer) } < 0
+    {
         return Err(InfoError::General("Unable to get CPU name".to_string()));
     }
 

@@ -1,14 +1,25 @@
-use std::sync::Mutex;
+use super::*;
+use std::{
+    ffi::{c_char, c_int},
+    fs::File,
+    io::Read,
+    mem::size_of,
+    ptr::null,
+    sync::Mutex,
+};
+
+const OS_DISPLAY_NAME_FILE: &str = "/System/Library/CoreServices/Setup \
+                                    Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.\
+                                    rtf";
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
-
-use super::*;
 
 /// Get cpu information on linux platforms using procfs
 mod cpu;
 pub use cpu::*;
 
 mod memory;
+use libc::{c_void, sysctl, CTL_KERN, KERN_HOSTNAME};
 pub use memory::*;
 
 mod caller;
@@ -32,18 +43,61 @@ pub fn initialized() -> bool { *INITIALIZED.lock().unwrap() }
 
 pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
 {
-    Ok(("NONE".to_string(), crate::printing::OsArt::Unknown))
+    let mut os_display_name_file = String::new();
+
+    if File::open(OS_DISPLAY_NAME_FILE)
+        .and_then(|mut f| f.read_to_string(&mut os_display_name_file))
+        .is_err()
+    {
+        return Err(InfoError::FileRead {
+            path: OS_DISPLAY_NAME_FILE.to_string(),
+        });
+    }
+
+    let mut os_display_name_file = os_display_name_file.split('\n');
+    let os_display_name_line = os_display_name_file
+        .find(|line| line.contains("SOFTWARE LICENSE AGREEMENT FOR macOS"))
+        .unwrap_or_default();
+    let os_display_name = os_display_name_line
+        .split(' ')
+        .last()
+        .unwrap_or("UNKNOWN")
+        .replace('\\', "")
+        .trim()
+        .to_owned();
+
+    Ok((
+        format!("MacOS {}", os_display_name),
+        crate::printing::OsArt::Unknown,
+    ))
 }
+
 pub fn hostname_info() -> Result<String, InfoError>
 {
-   Ok("NONE".to_string())
+    let mut buffer = [0x0 as c_char; 2048];
+    let mut mib: [c_int; 2] = [CTL_KERN, KERN_HOSTNAME];
+
+    // Get the hostname
+    if unsafe {
+        sysctl(
+            &mut mib as *mut c_int,
+            2,
+            &mut buffer as *mut i8 as *mut c_void,
+            &mut size_of::<[c_char; 2048]>(),
+            null::<usize>() as *mut c_void,
+            0,
+        )
+    } < 0
+    {
+        return Err(InfoError::Sysctl {
+            name: "kern.hostname".to_string(),
+        });
+    }
+    let buffer = buffer.map(|char| char as u8);
+    Ok(std::str::from_utf8(&buffer).unwrap().trim().to_string())
 }
 
-pub fn motherboard_info() -> Result<String, InfoError>
-{
-    Ok("NONE".to_string())
-}
-
+pub fn motherboard_info() -> Result<String, InfoError> { Ok("NONE".to_string()) }
 
 fn uname_from_uid(uid: u32) -> Option<String>
 {
