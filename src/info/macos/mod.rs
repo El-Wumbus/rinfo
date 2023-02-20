@@ -8,9 +8,13 @@ use std::{
     sync::Mutex,
 };
 
+
 const OS_DISPLAY_NAME_FILE: &str = "/System/Library/CoreServices/Setup \
                                     Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.\
                                     rtf";
+const MODEL_NAME_PLIST_FILE: &str = "/System/Library/PrivateFrameworks/ServerInformation.\
+                                     framework/Versions/A/Resources/en.lproj/SIMachineAttributes.\
+                                     plist";
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
@@ -19,7 +23,7 @@ mod cpu;
 pub use cpu::*;
 
 mod memory;
-use libc::{c_void, sysctl, CTL_KERN, KERN_HOSTNAME};
+use libc::{c_void, sysctl, CTL_HW, CTL_KERN, HW_MODEL, KERN_HOSTNAME};
 pub use memory::*;
 
 mod caller;
@@ -97,7 +101,48 @@ pub fn hostname_info() -> Result<String, InfoError>
     Ok(std::str::from_utf8(&buffer).unwrap().trim().to_string())
 }
 
-pub fn motherboard_info() -> Result<String, InfoError> { Ok("NONE".to_string()) }
+pub fn motherboard_info() -> Result<String, InfoError>
+{
+    let mut buffer = [0x0 as c_char; 2048];
+    let mut mib: [c_int; 2] = [CTL_HW, HW_MODEL];
+
+    // Get the model name
+    if unsafe {
+        sysctl(
+            &mut mib as *mut c_int,
+            2,
+            &mut buffer as *mut i8 as *mut c_void,
+            &mut size_of::<[c_char; 2048]>(),
+            null::<usize>() as *mut c_void,
+            0,
+        )
+    } < 0
+    {
+        return Err(InfoError::Sysctl {
+            name: "hw.model".to_string(),
+        });
+    }
+    let buffer = buffer.map(|char| char as u8);
+    let mut model = std::str::from_utf8(&buffer)
+        .unwrap()
+        .replace('\0', "")
+        .trim()
+        .to_string();
+
+    if let Ok(file) = plist::Value::from_file(MODEL_NAME_PLIST_FILE)
+    {
+        let file = file.as_dictionary().unwrap();
+        if file.contains_key(&model)
+        {
+            let file = file.get(&model).unwrap().as_dictionary().unwrap();
+            let file = file.get("_LOCALIZABLE_").unwrap().as_dictionary().unwrap();
+            let file = file.get("marketingModel").unwrap().as_string().unwrap();
+            model = file.trim().to_string();
+        }
+    };
+
+    Ok(model)
+}
 
 fn uname_from_uid(uid: u32) -> Option<String>
 {
