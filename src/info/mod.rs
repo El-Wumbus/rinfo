@@ -45,6 +45,9 @@ pub enum InfoError
         path: String, reason: String
     },
 
+    #[error("SysctlError: couldn't get '{name}'")]
+    Sysctl {name: String},
+    
     #[error("Error: Unexpected Error: {0}")]
     General(String),
 }
@@ -100,7 +103,7 @@ pub struct Cpu
     pub name: String,
 
     /// Cpu uptime in milliseconds
-    pub uptime: u64,
+    pub uptime: u128,
 
     /// Core count
     pub cores: usize,

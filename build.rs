@@ -1,15 +1,19 @@
-use std::{path::PathBuf, env};
+use std::{env, path::PathBuf};
 
-fn main()
-{
+fn main() {
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
 
     cc::Build::new()
-    .warnings(false)
-    .extra_warnings(false)
-    .file("lib/info/macos/cpu.c")
-    .compile("cpu");
+        .warnings(false)
+        .extra_warnings(false)
+        .file("lib/info/macos/cpu.c")
+        .compile("cpu");
+    cc::Build::new()
+        .warnings(false)
+        .extra_warnings(false)
+        .file("lib/info/macos/caller.c")
+        .compile("caller");
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
     // the resulting bindings.
@@ -18,7 +22,7 @@ fn main()
         // bindings for.
         .header("wrapper.h")
         .clang_arg("c")
-                // Tell cargo to invalidate the built crate whenever any of the
+        // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         // Finish the builder and generate the bindings.

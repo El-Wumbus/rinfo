@@ -8,6 +8,12 @@ use super::*;
 mod cpu;
 pub use cpu::*;
 
+mod memory;
+pub use memory::*;
+
+mod caller;
+pub use caller::*;
+
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -38,12 +44,38 @@ pub fn motherboard_info() -> Result<String, InfoError>
     Ok("NONE".to_string())
 }
 
-pub fn memory_info() -> Result<Memory, InfoError>
-{
-    Ok(Memory::default())
-}
 
-pub fn caller_info() -> Result<Caller, InfoError>
+fn uname_from_uid(uid: u32) -> Option<String>
 {
-    Ok(Caller::default())
+    use std::ffi::CStr;
+    use std::mem;
+    use std::ptr;
+
+    let mut result = ptr::null_mut();
+    let amt = match unsafe { libc::sysconf(libc::_SC_GETPW_R_SIZE_MAX) }
+    {
+        n if n < 0 => 512,
+        n => n as usize,
+    };
+    let mut buf = Vec::with_capacity(amt);
+    let mut passwd: libc::passwd = unsafe { mem::zeroed() };
+
+    match unsafe {
+        libc::getpwuid_r(
+            uid,
+            &mut passwd,
+            buf.as_mut_ptr(),
+            buf.capacity() as libc::size_t,
+            &mut result,
+        )
+    }
+    {
+        0 if !result.is_null() =>
+        {
+            let ptr = passwd.pw_name as *const _;
+            let username = unsafe { CStr::from_ptr(ptr) }.to_str().unwrap().to_owned();
+            Some(username)
+        }
+        _ => None,
+    }
 }

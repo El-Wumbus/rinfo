@@ -32,7 +32,7 @@ pub fn cpu_info() -> Result<Cpu, InfoError>
     let name = cpu_name(Rc::clone(&cpu_info))?;
     let (cores, threads) = cpu_count(Rc::clone(&cpu_info));
     let clock_rate = cpu_clock(Rc::clone(&cpu_info))?;
-    let uptime = cpu_uptime(Rc::clone(&uptime_info));
+    let uptime = cpu_uptime(Rc::clone(&uptime_info)) as u128;
 
     Ok(Cpu {
         name,

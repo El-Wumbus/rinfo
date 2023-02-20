@@ -15,7 +15,7 @@ pub fn cpu_info() -> Result<Cpu, InfoError>
         GetSystemInfo(&mut system_info);
     }
 
-    let uptime = unsafe { GetTickCount64() };
+    let uptime = unsafe { GetTickCount64() } as i128;
     let (cores, threads) = core_thread_count(system_info, Rc::clone(&wmi_con))?;
     let (name, clock_rate) = cpu_name_clock(Rc::clone(&wmi_con))?;
 

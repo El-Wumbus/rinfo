@@ -5,19 +5,6 @@
 #include <sys/sysctl.h>
 #include <sys/types.h>
 
-double macos_uptime()
-{
-    struct timeval boottime = {0, 0};
-    size_t boottime_len = sizeof(boottime);
-    int name[2] = {CTL_KERN, KERN_BOOTTIME};
-    if (sysctl(name, 2, &boottime, &boottime_len, NULL, 0) < 0)
-    {
-        return -1;
-    }
-    time_t bsec = boottime.tv_sec, csec = time(NULL);
-    return difftime(csec, bsec);
-}
-
 int macos_cpu_name(char *buffer, size_t buffer_len)
 {
     char brand_string[2048];
@@ -66,9 +53,14 @@ int macos_cpu_count(struct MacOsCpuCount* info)
 }
 
 #else
-double macos_uptime()
+int macos_cpu_frequency(uint64_t* cpu_frequency)
 {
-    return -1.0;
+    return -1;
+}
+
+int macos_cpu_count(struct MacOsCpuCount* info)
+{
+    return -1;
 }
 
 int macos_cpu_name(char *buffer, size_t buffer_len)
