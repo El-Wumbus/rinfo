@@ -22,7 +22,7 @@ pub mod macos;
 #[cfg(target_os = "macos")]
 pub use macos as system;
 
-pub use system::{hostname_info, ip_info, motherboard_info};
+pub use system::{hostname_info, ip_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 #[allow(dead_code)]
@@ -58,64 +58,68 @@ pub enum InfoError
 
 impl InfoError
 {
-    pub fn report(&self) -> i32
+    pub fn report_if_error<T>(e: Result<T, Self>) -> T
     {
-        let code = match self
+        if e.is_err()
         {
-            Self::FileParseError { path: _, reason: _ } => 65,
-            Self::Sysctl { name: _ } => 71,
-            Self::MissingFile { path: _ } => 72,
-            Self::FileRead { path: _ } => 74,
-            _ => 64,
-        };
-        eprintln!("{self}");
-        code
+            let e = e.err().unwrap();
+            let code = match e
+            {
+                Self::FileParseError { path: _, reason: _ } => 65,
+                Self::Sysctl { name: _ } => 71,
+                Self::MissingFile { path: _ } => 72,
+                Self::FileRead { path: _ } => 74,
+                _ => 64,
+            };
+            
+            eprintln!("{e}");
+            std::process::exit(code);
+        }
+    
+        e.unwrap()
     }
 }
 
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
-pub struct Info
+
+pub struct Net
 {
-    /// Cpu information
-    pub cpu: Cpu,
-
-    /// RAM info
-    pub memory: Memory,
-
-    /// OS info
-    pub os: OperatingSystem,
-
-    /// The user who's calling the program
-    pub user: Caller,
-
-    /// The Hostname
-    pub hostname: String,
-
-    pub motherboard_name: String,
-
-    pub local_ip: String,
+    local_ip: String,
 }
 
-impl Info
+impl Net
 {
     pub fn read() -> Result<Self, InfoError>
     {
-        let cpu = Cpu::read()?;
-        let memory = Memory::read()?;
-        let os = OperatingSystem::read()?;
-        let user = Caller::read()?;
-        let hostname = hostname_info()?;
-        let motherboard_name = motherboard_info()?;
-        let local_ip = ip_info()?;
-        Ok(Self {
-            cpu,
-            memory,
-            os,
-            user,
-            hostname,
-            motherboard_name,
-            local_ip,
-        })
+        system::net_info()
+    }
+}
+
+pub struct BaseBoard
+{
+    pub model: String,
+    pub vendor: String,
+}
+
+impl BaseBoard
+{
+    pub fn read() -> Result<Self, InfoError>
+    {
+        system::motherboard_info()
+    }
+}
+
+pub struct Host
+{
+    pub hostname: String,
+}
+
+impl Host
+{
+    pub fn read() -> Result<Self, InfoError>
+    {
+        Self {
+            hostname: hostname_info()?,
+        }
     }
 }
 
