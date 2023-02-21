@@ -79,7 +79,7 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
     ))
 }
 
-pub fn hostname_info() -> Result<String, InfoError>
+pub fn hostname_info() -> Result<Host, InfoError>
 {
     let mut buffer = [0x0 as c_char; 2048];
     let mut mib: [c_int; 2] = [CTL_KERN, KERN_HOSTNAME];
@@ -101,10 +101,14 @@ pub fn hostname_info() -> Result<String, InfoError>
         });
     }
     let buffer = buffer.map(|char| char as u8);
-    Ok(std::str::from_utf8(&buffer).unwrap().trim().to_string())
+    
+    Ok(Host
+    {
+        hostname: std::str::from_utf8(&buffer).unwrap().trim().to_string()
+    })
 }
 
-pub fn motherboard_info() -> Result<String, InfoError>
+pub fn motherboard_info() -> Result<BaseBoard, InfoError>
 {
     let mut buffer = [0x0 as c_char; 2048];
     let mut mib: [c_int; 2] = [CTL_HW, HW_MODEL];
@@ -144,7 +148,11 @@ pub fn motherboard_info() -> Result<String, InfoError>
         }
     };
 
-    Ok(model)
+    Ok(BaseBoard
+    {
+        model,
+        vendor: String::new(),
+    })
 }
 
 fn uname_from_uid(uid: u32) -> Option<String>
@@ -182,7 +190,7 @@ fn uname_from_uid(uid: u32) -> Option<String>
     }
 }
 
-pub fn ip_info() -> Result<String, InfoError>
+pub fn ip_info() -> Result<Net, InfoError>
 {
     const IP: &str = "1.1.1.1";
     const PORT: u16 = 53;
@@ -235,7 +243,7 @@ pub fn ip_info() -> Result<String, InfoError>
 
     unsafe { close(sock) };
 
-    let s = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
+    let local_ip = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
-    Ok(s)
+    Ok(Net{local_ip})
 }

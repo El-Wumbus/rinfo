@@ -129,7 +129,7 @@ fn uname_from_uid(uid: u32) -> Option<String>
     }
 }
 
-pub fn hostname_info() -> Result<String, InfoError>
+pub fn hostname_info() -> Result<Host, InfoError>
 {
     let mut hostname = String::new();
 
@@ -142,10 +142,12 @@ pub fn hostname_info() -> Result<String, InfoError>
         });
     }
 
-    Ok(hostname.trim().to_string())
+    Ok(Host{
+        hostname: hostname.trim().to_string()
+    })
 }
 
-pub fn motherboard_info() -> Result<String, InfoError>
+pub fn motherboard_info() -> Result<BaseBoard, InfoError>
 {
     let mut vendor = String::new();
 
@@ -158,7 +160,7 @@ pub fn motherboard_info() -> Result<String, InfoError>
         });
     }
 
-    let mut name = String::new();
+    let mut model = String::new();
 
     if File::open(SYS_BOARD_NAME)
         .and_then(|mut f| f.read_to_string(&mut name))
@@ -169,11 +171,14 @@ pub fn motherboard_info() -> Result<String, InfoError>
         });
     }
 
-    Ok(format!("{} ({})", name.trim(), vendor.trim()))
+    Ok(BaseBoard {
+        vendor,
+        model,
+    })
 }
 
 
-pub fn ip_info() -> Result<String, InfoError>
+pub fn ip_info() -> Result<Net, InfoError>
 {
     const IP: &str = "1.1.1.1";
     const PORT: u16 = 53;
@@ -224,7 +229,9 @@ pub fn ip_info() -> Result<String, InfoError>
 
     unsafe { close(sock) };
 
-    let s = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
+    let local_ip = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
-    Ok(s)
+    Ok(Net {
+        local_ip,
+    })
 }

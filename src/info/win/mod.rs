@@ -79,18 +79,17 @@ pub fn os_info() -> Result<(String, crate::printing::OsArt), InfoError>
     Ok((os_str, os_art))
 }
 
-pub fn motherboard_info() -> Result<String, InfoError>
+pub fn motherboard_info() -> Result<BaseBoard, InfoError>
 {
-    let name = "NAME_UNAVAILABLE";
+    let model = "NAME_UNAVAILABLE";
     let vendor = "VENDOR_UNAVAILABLE";
 
     // TODO: Grab the motherboard info
-
-    Ok(format!("{} ({})", name.trim(), vendor.trim()))
+    Ok(BaseBoard {model, vendor})
 }
 
 /// Get the computer's hostname
-pub fn hostname_info() -> Result<String, InfoError>
+pub fn hostname_info() -> Result<Host, InfoError>
 {
     // Create a character buffer
     let mut buffer = [0x0; 1024];
@@ -110,11 +109,11 @@ pub fn hostname_info() -> Result<String, InfoError>
         return Err(InfoError::General(m.to_string()));
     }
 
-    let s = match std::str::from_utf8(&buffer)
+    let hostname = match std::str::from_utf8(&buffer)
     {
         Ok(s) => s,
         Err(e) => return Err(InfoError::General(format!("Invalid UTF-8 sequence: {e}"))),
     };
 
-    Ok(s.trim().to_string())
+    Ok(Host{hostname})
 }

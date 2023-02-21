@@ -93,6 +93,7 @@ fn main()
 {
     let mut config = Config::default();
 
+    // Load configuration
     if let Some(config_dir) = dirs::config_dir()
     {
         let config_file = config_dir.join("SBII").join("rinfo.toml");
@@ -108,52 +109,49 @@ fn main()
             }
         }
     }
-
     config.combine(Config::from_args());
 
-    let info = match info::Info::read()
-    {
-        Ok(i) => i,
-        Err(e) => exit(e.report()),
-    };
-    let mut info_str = String::new();
 
+    // Build information string
+    let mut info_str = String::new();
     if !config.omit_cpu
     {
-        info_str.push_str(&info.cpu.to_string());
+        info_str.push_str(&format!("\n{}", InfoError::report(Cpu::read())));
     }
 
     if !config.omit_ram
     {
-        info_str.push_str(&format!("\n{}", info.memory));
+        info_str.push_str(&format!("\n{}", InfoError::report(Memory::read())));
     }
 
     if !config.omit_motherboard
     {
-        info_str.push_str(&format!("\nBOARD: {}", info.motherboard_name));
+        info_str.push_str(&format!("\n{}", InfoError::report()));
     }
 
     if !config.omit_ip
     {
-        info_str.push_str(&format!("\nLAN: {}", info.local_ip));
+        info_str.push_str(&format!("\n{}", InfoError::report(Net::read())));
     }
 
     if !config.omit_hostname
     {
-        info_str.push_str(&format!("\nHOST: {}", info.hostname));
+        info_str.push_str(&format!("\n{}", InfoError::report(Host::read())));
     }
 
     if !config.omit_caller
     {
-        info_str.push_str(&format!("\n{}", info.user));
+        info_str.push_str(&format!("\n{}", InfoError::report(Caller::read())));
     }
 
     if !config.omit_os
     {
-        info_str.push_str(&format!("\n{}", info.os));
+        info_str.push_str(&format!("\n{}", InfoError::report(OperatingSystem::read())));
     }
 
+    info_str = info_str.trim().to_string();
 
+    // Print information
     if config.omit_art
     {
         println!("{info_str}");

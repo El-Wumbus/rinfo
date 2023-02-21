@@ -58,7 +58,7 @@ pub enum InfoError
 
 impl InfoError
 {
-    pub fn report_if_error<T>(e: Result<T, Self>) -> T
+    pub fn report<T>(e: Result<T, Self>) -> T
     {
         if e.is_err()
         {
@@ -86,6 +86,14 @@ pub struct Net
     local_ip: String,
 }
 
+impl std::fmt::Display for Net
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "LAN: {} (IPV4)", self.local_ip)
+    }
+}
+
 impl Net
 {
     pub fn read() -> Result<Self, InfoError>
@@ -100,6 +108,23 @@ pub struct BaseBoard
     pub vendor: String,
 }
 
+impl std::fmt::Display for BaseBoard
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        let vendor = if self.vendor.is_empty()
+        {
+            self.vendor
+        }
+        else
+        {
+            format!(" ({})", self.vendor)
+        };
+
+        write!(f, "BOARD {}{vendor}", self.model)
+    }
+}
+
 impl BaseBoard
 {
     pub fn read() -> Result<Self, InfoError>
@@ -111,6 +136,14 @@ impl BaseBoard
 pub struct Host
 {
     pub hostname: String,
+}
+
+impl std::fmt::Display for Host
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f,"HOST: {}",self.hostname)
+    }
 }
 
 impl Host
