@@ -129,7 +129,7 @@ fn main()
 
     if !config.omit_motherboard
     {
-        info_str.push_str(&format!("\n{}", InfoError::report()));
+        info_str.push_str(&format!("\n{}", InfoError::report(BaseBoard::read())));
     }
 
     if !config.omit_ip
