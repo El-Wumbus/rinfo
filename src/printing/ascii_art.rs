@@ -92,32 +92,23 @@ llllllllllllll  lllllllllllllllllll
                        ````''*::cll
                                  ``"#;
 
-pub const MACOS: &str = r#"                        .8 
-                      .888
-                    .8888'
-                   .8888'
-                   888'
-                   8'
-      .88888888888. .88888888888.
-   .8888888888888888888888888888888.
- .8888888888888888888888888888888888.
-.&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&'
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&'
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&'
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.
-`%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.
- `00000000000000000000000000000000000'
-  `000000000000000000000000000000000'
-   `0000000000000000000000000000000'
-     `###########################'
-       `#######################'
-         `#########''########'
-           `""""""'  `"""""'
-"#;
+pub const MACOS: &str = r#"                    c.'
+                 ,xNMM.
+               .OMMMMo
+               lMM"
+     .;loddo:.  .olloddol;.
+   cKMMMMMMMMMMNWMMMMMMMMMM0:
+ .KMMMMMMMMMMMMMMMMMMMMMMMWd.
+ XMMMMMMMMMMMMMMMMMMMMMMMX.
+;MMMMMMMMMMMMMMMMMMMMMMMM:
+:MMMMMMMMMMMMMMMMMMMMMMMM:
+.MMMMMMMMMMMMMMMMMMMMMMMMX.
+ kMMMMMMMMMMMMMMMMMMMMMMMMWd.
+ 'XMMMMMMMMMMMMMMMMMMMMMMMMMMk
+  'XMMMMMMMMMMMMMMMMMMMMMMMMK.
+    kMMMMMMMMMMMMMMMMMMMMMMd
+     ;KMMMMMMMWXXWMMMMMMMk.
+       "cooc*"    "*coo'""#;
 
 pub const UNKNOWN: &str = r#"           @@@%%%%%%%%%@@
         @@@%%%%%%%%%#######%@@
