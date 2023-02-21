@@ -233,6 +233,8 @@ pub fn ip_info() -> Result<String, InfoError>
         return Err(InfoError::General("Unable to get socket name".to_string()));
     }
 
+    unsafe { close(sock) };
+
     let s = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
     Ok(s)

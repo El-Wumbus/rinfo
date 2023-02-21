@@ -1,7 +1,9 @@
 use super::common;
 use crate::info::*;
 use lazy_static::lazy_static;
-use libc::{connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, AF_INET, SOCK_DGRAM};
+use libc::{
+    close, connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, AF_INET, SOCK_DGRAM,
+};
 use std::{env, fs::File, io::Read, mem::size_of, path::PathBuf, sync::Mutex};
 
 lazy_static! {
@@ -219,6 +221,8 @@ pub fn ip_info() -> Result<String, InfoError>
     {
         return Err(InfoError::General("Unable to get socket name".to_string()));
     }
+
+    unsafe { close(sock) };
 
     let s = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
