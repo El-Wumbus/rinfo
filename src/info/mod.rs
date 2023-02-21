@@ -2,6 +2,7 @@ use crate::printing;
 use humansize::{FormatSize, BINARY};
 use std::path::PathBuf;
 use thiserror::Error;
+pub mod common;
 
 #[cfg(target_os = "linux")]
 pub mod linux;
@@ -21,7 +22,7 @@ pub mod macos;
 #[cfg(target_os = "macos")]
 pub use macos as system;
 
-pub use system::{hostname_info, motherboard_info};
+pub use system::{hostname_info, ip_info, motherboard_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 #[allow(dead_code)]
@@ -91,6 +92,8 @@ pub struct Info
     pub hostname: String,
 
     pub motherboard_name: String,
+
+    pub local_ip: String,
 }
 
 impl Info
@@ -103,7 +106,7 @@ impl Info
         let user = Caller::read()?;
         let hostname = hostname_info()?;
         let motherboard_name = motherboard_info()?;
-
+        let local_ip = ip_info()?;
         Ok(Self {
             cpu,
             memory,
@@ -111,6 +114,7 @@ impl Info
             user,
             hostname,
             motherboard_name,
+            local_ip,
         })
     }
 }

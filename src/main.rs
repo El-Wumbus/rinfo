@@ -41,6 +41,10 @@ struct Config
     #[structopt(short = "a", long)]
     omit_art: bool,
 
+    /// Don't print local IP address
+    #[structopt(short = "i", long)]
+    omit_ip: bool,
+
     /// Print character art above information
     #[structopt(short = "v", long)]
     vertical_art: bool,
@@ -52,31 +56,35 @@ impl Config
     {
         if !self.omit_art && other.omit_art
         {
-            self.omit_art = true
+            self.omit_art = true;
         }
         if !self.omit_caller && other.omit_caller
         {
-            self.omit_caller = true
+            self.omit_caller = true;
         }
         if !self.omit_cpu && other.omit_cpu
         {
-            self.omit_cpu = true
+            self.omit_cpu = true;
         }
         if !self.omit_hostname && other.omit_hostname
         {
-            self.omit_hostname = true
+            self.omit_hostname = true;
         }
         if !self.omit_motherboard && other.omit_motherboard
         {
-            self.omit_motherboard = true
+            self.omit_motherboard = true;
         }
         if !self.omit_os && other.omit_os
         {
-            self.omit_os = true
+            self.omit_os = true;
         }
         if !self.vertical_art && other.vertical_art
         {
-            self.vertical_art = true
+            self.vertical_art = true;
+        }
+        if !self.omit_ip && other.omit_ip
+        {
+            self.omit_ip = true;
         }
     }
 }
@@ -125,6 +133,11 @@ fn main()
         info_str.push_str(&format!("\nBOARD: {}", info.motherboard_name));
     }
 
+    if !config.omit_ip
+    {
+        info_str.push_str(&format!("\nLAN: {}", info.local_ip));
+    }
+
     if !config.omit_hostname
     {
         info_str.push_str(&format!("\nHOST: {}", info.hostname));
@@ -139,6 +152,7 @@ fn main()
     {
         info_str.push_str(&format!("\n{}", info.os));
     }
+
 
     if config.omit_art
     {
