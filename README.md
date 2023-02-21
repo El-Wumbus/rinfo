@@ -13,15 +13,15 @@ until the information collection methods have stabilized.
 with a configuration file. The default output looks similar to the following:
 
 ```txt
-                   -`                     CPU: AMD Ryzen 5 5600X 6-Core Processor@4.64GHz (6 cores, 12 threads)
-                  .o+`                    UPTIME: 5 days, 3 hours, 19 minutes, 26 seconds and 640 ms
-                 `ooo/                    RAM: 11.31 GiB/31.27 GiB (19.96 GiB available)
+                   -`                     CPU: AMD Ryzen 5 5600X 6-Core Processor@4.38GHz (6 cores, 12 threads)
+                  .o+`                    UPTIME: 1 day, 15 hours, 55 minutes and 230 ms
+                 `ooo/                    RAM: 7.46 GiB/31.27 GiB (23.81 GiB available)
                 `+oooo:                   BOARD: B550 GAMING X V2 (Gigabyte Technology Co., Ltd.)
-               `+oooooo:                  HOST: Basestation
-               -+oooooo+:                 USER: decator
-             `/:-:++oooo+:                SHELL: zsh
-            `/++++/+++++++:               OS: Arch Linux (linux)
-           `/++++++++++++++:              
+               `+oooooo:                  LAN: 192.168.1.18 (IPV4)
+               -+oooooo+:                 HOST: Basestation
+             `/:-:++oooo+:                USER: decator
+            `/++++/+++++++:               SHELL: zsh
+           `/++++++++++++++:              OS: Arch Linux (linux)
           `/+++ooooooooooooo/`            
          ./ooosssso++osssssso+`           
         .oossssso-````/ossssss+`          
@@ -37,7 +37,7 @@ with a configuration file. The default output looks similar to the following:
 ### Flags
 
 ```txt
-rinfo 0.1.0
+rinfo 0.2.0
 Get information about your system
 
 USAGE:
@@ -49,6 +49,7 @@ FLAGS:
     -p, --omit-caller         Don't print caller (USER, SHELL) information
     -c, --omit-cpu            Don't print CPU information
     -n, --omit-hostname       Don't print the system hostname
+    -i, --omit-ip             Don't print local IP address
     -m, --omit-motherboard    Don't print motherboard information
     -o, --omit-os             Don't print operating system information
     -r, --omit-ram            Don't print RAM information
@@ -59,7 +60,7 @@ FLAGS:
 #### Example
 
 ```txt
-$ rinfo -ap --omit-os
+$ rinfo -api --omit-os
 CPU: AMD Ryzen 5 5600X 6-Core Processor@2.06GHz (6 cores, 12 threads)
 UPTIME: 5 days, 3 hours, 5 minutes, 1 second and 390 ms
 RAM: 11.81 GiB/31.27 GiB (19.46 GiB available)
@@ -75,6 +76,7 @@ Depending on your OS, the configuration file will be in a different location:
 (e.g. `/home/awesomeguy420/.config/SBII/rinfo.toml`)
 * *Windows* - `{FOLDERID_RoamingAppData}\SBII\rinfo.toml`
 (e.g. `C:\Users\CoolGuy69\AppData\Roaming\SBII\rinfo.toml`)
+* MacOS - `$HOME/Library/Application Support` (e.g. `/Users/Worstbuy/Library/Application Support`)
 
 The configuration file uses the `TOML` format, an example of one is seen below.
 
@@ -86,6 +88,7 @@ omitCaller = false
 omitHostname = false
 omitOs = false
 omitArt = false
+omitIp = false
 verticalArt = true
 ```
 
