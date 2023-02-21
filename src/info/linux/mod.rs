@@ -1,6 +1,8 @@
+use super::common;
 use crate::info::*;
 use lazy_static::lazy_static;
-use std::{env, fs::File, io::Read, path::PathBuf, sync::Mutex};
+use libc::{connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, AF_INET, SOCK_DGRAM};
+use std::{env, fs::File, io::Read, mem::size_of, path::PathBuf, sync::Mutex};
 
 lazy_static! {
     /// Has the initialization function ran?
@@ -166,4 +168,59 @@ pub fn motherboard_info() -> Result<String, InfoError>
     }
 
     Ok(format!("{} ({})", name.trim(), vendor.trim()))
+}
+
+
+pub fn ip_info() -> Result<String, InfoError>
+{
+    const IP: &str = "1.1.1.1";
+    const PORT: u16 = 53;
+
+    let sock = unsafe { socket(AF_INET, SOCK_DGRAM, 0) };
+    if sock == -1
+    {
+        return Err(InfoError::General("Unable to create socket".to_string()));
+    }
+
+    let serv = sockaddr_in {
+        sin_family: AF_INET as u16,
+        sin_port: PORT.to_be(),
+        sin_addr: in_addr {
+            s_addr: common::ipv4_to_int(IP),
+        },
+        sin_zero: [0; 8],
+    };
+
+    if unsafe {
+        connect(
+            sock,
+            &serv as *const sockaddr_in as *const sockaddr,
+            size_of::<sockaddr_in>() as u32,
+        )
+    } == -1
+    {
+        return Err(InfoError::General(format!("Unable to connect to '{IP}'")));
+    }
+
+    let mut name = sockaddr_in {
+        sin_family: 0,
+        sin_port: 0,
+        sin_addr: in_addr { s_addr: 0 },
+        sin_zero: [0; 8],
+    };
+
+    if unsafe {
+        getsockname(
+            sock,
+            &mut name as *mut sockaddr_in as *mut sockaddr,
+            &mut (size_of::<sockaddr_in>() as u32),
+        )
+    } == -1
+    {
+        return Err(InfoError::General("Unable to get socket name".to_string()));
+    }
+
+    let s = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
+
+    Ok(s)
 }
