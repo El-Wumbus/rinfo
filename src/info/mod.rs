@@ -118,7 +118,7 @@ impl std::fmt::Display for BaseBoard
     {
         let vendor = if self.vendor.is_empty()
         {
-            self.vendor
+            self.vendor.clone()
         }
         else
         {
