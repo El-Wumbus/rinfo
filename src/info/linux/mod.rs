@@ -163,7 +163,7 @@ pub fn motherboard_info() -> Result<BaseBoard, InfoError>
     let mut model = String::new();
 
     if File::open(SYS_BOARD_NAME)
-        .and_then(|mut f| f.read_to_string(&mut name))
+        .and_then(|mut f| f.read_to_string(&mut model))
         .is_err()
     {
         return Err(InfoError::FileRead {
@@ -178,7 +178,7 @@ pub fn motherboard_info() -> Result<BaseBoard, InfoError>
 }
 
 
-pub fn ip_info() -> Result<Net, InfoError>
+pub fn net_info() -> Result<Net, InfoError>
 {
     const IP: &str = "1.1.1.1";
     const PORT: u16 = 53;

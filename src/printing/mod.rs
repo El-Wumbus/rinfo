@@ -1,7 +1,7 @@
 pub mod ascii_art;
 pub use ascii_art::*;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Default)]
 #[allow(dead_code)]
 pub enum OsArt
 {
@@ -11,6 +11,7 @@ pub enum OsArt
     Windows,
     Windows1011,
     MacOS,
+    #[default]
     Unknown,
 }
 

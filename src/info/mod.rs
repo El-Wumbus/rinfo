@@ -22,7 +22,6 @@ pub mod macos;
 #[cfg(target_os = "macos")]
 pub use macos as system;
 
-pub use system::{hostname_info, ip_info};
 
 #[derive(Error, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone)]
 #[allow(dead_code)]
@@ -98,6 +97,11 @@ impl Net
 {
     pub fn read() -> Result<Self, InfoError>
     {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+        
         system::net_info()
     }
 }
@@ -129,6 +133,11 @@ impl BaseBoard
 {
     pub fn read() -> Result<Self, InfoError>
     {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
         system::motherboard_info()
     }
 }
@@ -150,9 +159,12 @@ impl Host
 {
     pub fn read() -> Result<Self, InfoError>
     {
-        Self {
-            hostname: hostname_info()?,
+        if !system::initialized()
+        {
+            system::init()?;
         }
+
+        system::hostname_info()
     }
 }
 
@@ -247,7 +259,7 @@ impl Memory
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default)]
 pub struct OperatingSystem
 {
     pub name: String,

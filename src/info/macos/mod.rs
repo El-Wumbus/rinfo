@@ -190,7 +190,7 @@ fn uname_from_uid(uid: u32) -> Option<String>
     }
 }
 
-pub fn ip_info() -> Result<Net, InfoError>
+pub fn net_info() -> Result<Net, InfoError>
 {
     const IP: &str = "1.1.1.1";
     const PORT: u16 = 53;

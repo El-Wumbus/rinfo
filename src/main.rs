@@ -1,10 +1,11 @@
 #![allow(non_camel_case_types)]
-use std::{fs::read_to_string, process::exit};
+use std::{fs::read_to_string};
 
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 mod info;
 mod printing;
+use info::*;
 
 #[derive(
     Debug, StructOpt, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default,
@@ -114,6 +115,8 @@ fn main()
 
     // Build information string
     let mut info_str = String::new();
+    let os = InfoError::report(OperatingSystem::read());
+
     if !config.omit_cpu
     {
         info_str.push_str(&format!("\n{}", InfoError::report(Cpu::read())));
@@ -146,7 +149,7 @@ fn main()
 
     if !config.omit_os
     {
-        info_str.push_str(&format!("\n{}", InfoError::report(OperatingSystem::read())));
+        info_str.push_str(&format!("\n{os}"));
     }
 
     info_str = info_str.trim().to_string();
@@ -158,10 +161,10 @@ fn main()
     }
     else if config.vertical_art
     {
-        println!("{}\n{info_str}", info.os.art);
+        println!("{}\n{info_str}", os.art);
     }
     else
     {
-        printing::print_with_logo(info.os.art, &info_str);
+        printing::print_with_logo(os.art, &info_str);
     }
 }
