@@ -117,3 +117,8 @@ pub fn hostname_info() -> Result<Host, InfoError>
 
     Ok(Host { hostname })
 }
+
+pub fn gpu_info() -> Result<Gpu, InfoError>
+{
+    common::get_gpu_name_gl()
+}

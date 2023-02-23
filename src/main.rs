@@ -3,9 +3,13 @@ use std::fs::read_to_string;
 
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
+
+/// System information
 mod info;
-mod printing;
 use info::*;
+
+/// Print things in cool ways
+mod printing;
 
 #[derive(
     Debug, StructOpt, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default,
@@ -46,49 +50,15 @@ struct Config
     #[structopt(short = "i", long)]
     omit_ip: bool,
 
+    /// Don't print GPU information
+    #[structopt(short = 'g', long)]
+    omit_gpu: bool,
+
     /// Print character art above information
     #[structopt(short = "v", long)]
     vertical_art: bool,
 }
 
-impl Config
-{
-    pub fn combine(&mut self, other: Self)
-    {
-        if !self.omit_art && other.omit_art
-        {
-            self.omit_art = true;
-        }
-        if !self.omit_caller && other.omit_caller
-        {
-            self.omit_caller = true;
-        }
-        if !self.omit_cpu && other.omit_cpu
-        {
-            self.omit_cpu = true;
-        }
-        if !self.omit_hostname && other.omit_hostname
-        {
-            self.omit_hostname = true;
-        }
-        if !self.omit_motherboard && other.omit_motherboard
-        {
-            self.omit_motherboard = true;
-        }
-        if !self.omit_os && other.omit_os
-        {
-            self.omit_os = true;
-        }
-        if !self.vertical_art && other.vertical_art
-        {
-            self.vertical_art = true;
-        }
-        if !self.omit_ip && other.omit_ip
-        {
-            self.omit_ip = true;
-        }
-    }
-}
 
 fn main()
 {
@@ -125,6 +95,11 @@ fn main()
     if !config.omit_ram
     {
         info_str.push_str(&format!("\n{}", InfoError::report(Memory::read())));
+    }
+
+    if !config.omit_cpu
+    {
+        info_str.push_str(&format!("\n{}", InfoError::report(Gpu::read())));
     }
 
     if !config.omit_motherboard
@@ -166,5 +141,48 @@ fn main()
     else
     {
         printing::print_with_logo(os.art, &info_str);
+    }
+}
+
+impl Config
+{
+    pub fn combine(&mut self, other: Self)
+    {
+        if !self.omit_art && other.omit_art
+        {
+            self.omit_art = true;
+        }
+        if !self.omit_caller && other.omit_caller
+        {
+            self.omit_caller = true;
+        }
+        if !self.omit_cpu && other.omit_cpu
+        {
+            self.omit_cpu = true;
+        }
+        if !self.omit_hostname && other.omit_hostname
+        {
+            self.omit_hostname = true;
+        }
+        if !self.omit_motherboard && other.omit_motherboard
+        {
+            self.omit_motherboard = true;
+        }
+        if !self.omit_os && other.omit_os
+        {
+            self.omit_os = true;
+        }
+        if !self.vertical_art && other.vertical_art
+        {
+            self.vertical_art = true;
+        }
+        if !self.omit_ip && other.omit_ip
+        {
+            self.omit_ip = true;
+        }
+        if !self.omit_gpu && other.omit_gpu
+        {
+            self.omit_gpu = true;
+        }
     }
 }

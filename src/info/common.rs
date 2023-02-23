@@ -1,6 +1,6 @@
-use ogl33::{glGetString, GLubyte, GL_VENDOR};
+use ogl33::{glGetString, GLubyte, GL_VENDOR, GL_RENDERER};
 
-use super::InfoError;
+use super::{InfoError, Gpu};
 
 pub fn ipv4_to_int(s: &str) -> u32
 {
@@ -46,12 +46,26 @@ pub fn int_to_ipv4(i: u32) -> String
     format!("{a}.{b}.{c}.{d}")
 }
 
-pub fn get_gpu_name_gl() -> Result<(), InfoError> {
+pub fn get_gpu_name_gl() -> Result<Gpu, InfoError> {
+    // Get the information
     let vendor_name: *const GLubyte = unsafe { glGetString(GL_VENDOR) };
     if vendor_name.is_null()
     {
-        return Err(InfoError::General("OPENGL: failed to return gpu vendor name".to_string()));
+        return Err(InfoError::General("OPENGL: failed to return GPU vendor name".to_string()));
+    }
+    let renderer_name: *const GLubyte = unsafe { glGetString(GL_RENDERER)};
+    if renderer_name.is_null()
+    {
+        return Err(InfoError::General("OPENGL: Failed to return renderer name".to_string()));
     }
 
-    Ok(())
+    // Create rusty strings from them
+    let vendor_name =
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(vendor_name).to_bytes()).to_owned();
+    let renderer_name =
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(renderer_name)}.to_bytes()).to_owned();
+    Ok(Gpu{
+        vendor: vendor_name,
+        model: renderer_name,
+    })
 }

@@ -233,3 +233,8 @@ pub fn net_info() -> Result<Net, InfoError>
 
     Ok(Net { local_ip })
 }
+
+pub fn gpu_info() -> Result<Gpu, InfoError>
+{
+    common::get_gpu_name_gl()
+}
