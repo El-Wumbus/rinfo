@@ -16,7 +16,6 @@ chrono = "0.4"
 structopt = "0.3.26"
 dirs = "4.0.0"
 plist = "1.0"
-ogl33 = { version = "0.2.0", features = ["debug_error_checks"]}
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.11.0"
