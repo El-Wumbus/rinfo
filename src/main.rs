@@ -51,7 +51,7 @@ struct Config
     omit_ip: bool,
 
     /// Don't print GPU information
-    #[structopt(short = 'g', long)]
+    #[structopt(short = "g", long)]
     omit_gpu: bool,
 
     /// Print character art above information
