@@ -1,5 +1,5 @@
-use std::ffi::CStr;
 use ogl33::{glGetString, GLubyte, GL_VENDOR, GL_RENDERER};
+
 use super::{InfoError, Gpu};
 
 pub fn ipv4_to_int(s: &str) -> u32
@@ -61,9 +61,9 @@ pub fn get_gpu_name_gl() -> Result<Gpu, InfoError> {
 
     // Create rusty strings from them
     let vendor_name =
-        String::from_utf8_lossy(unsafe {CStr::from_ptr(vendor_name)}.to_bytes()).to_string();
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(vendor_name).to_bytes()).to_owned();
     let renderer_name =
-        String::from_utf8_lossy(unsafe {CStr::from_ptr(renderer_name)}.to_bytes()).to_string();
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(renderer_name)}.to_bytes()).to_owned();
     Ok(Gpu{
         vendor: vendor_name,
         model: renderer_name,
