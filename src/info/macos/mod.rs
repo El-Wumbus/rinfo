@@ -25,7 +25,7 @@ pub use cpu::*;
 mod memory;
 use libc::{
     c_void, connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, sysctl, AF_INET, CTL_HW,
-    CTL_KERN, HW_MODEL, KERN_HOSTNAME, SOCK_DGRAM,
+    CTL_KERN, HW_MODEL, KERN_HOSTNAME, SOCK_DGRAM, close
 };
 pub use memory::*;
 
