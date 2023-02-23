@@ -78,7 +78,7 @@ fn with_both(first: &str, second: &str) -> String
         let sec = second.get(i).unwrap_or(&"");
 
         s.push_str(fir);
-        s.push_str(&" ".repeat(max_len - fir.len() + 2));
+        s.push_str(&" ".repeat(max_len - fir.len() + 2))
         s.push_str(&format!("{sec}\n"));
 
         i += 1;
