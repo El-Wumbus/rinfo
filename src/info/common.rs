@@ -61,9 +61,9 @@ pub fn get_gpu_name_gl() -> Result<Gpu, InfoError> {
 
     // Create rusty strings from them
     let vendor_name =
-        String::from_utf8_lossy(unsafe {CStr::from_ptr(vendor_name)}.to_bytes()).to_string();
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(vendor_name as *const i8)}.to_bytes()).to_string();
     let renderer_name =
-        String::from_utf8_lossy(unsafe {CStr::from_ptr(renderer_name)}.to_bytes()).to_string();
+        String::from_utf8_lossy(unsafe {CStr::from_ptr(renderer_name as *const i8)}.to_bytes()).to_string();
     Ok(Gpu{
         vendor: vendor_name,
         model: renderer_name,
