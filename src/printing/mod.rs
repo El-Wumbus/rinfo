@@ -74,11 +74,12 @@ fn with_both(first: &str, second: &str) -> String
     let mut i = 0;
     while i < first.len() || i < second.len()
     {
-        let fir = first.get(i).unwrap_or(&"");
+        let 
+        fir = first.get(i).unwrap_or(&"");
         let sec = second.get(i).unwrap_or(&"");
 
         s.push_str(fir);
-        s.push_str(&" ".repeat(max_len - fir.len() + 2))
+        s.push_str(&" ".repeat(max_len - fir.len() + 2));
         s.push_str(&format!("{sec}\n"));
 
         i += 1;
