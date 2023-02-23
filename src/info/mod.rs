@@ -70,11 +70,11 @@ impl InfoError
                 Self::FileRead { path: _ } => 74,
                 _ => 64,
             };
-            
+
             eprintln!("{e}");
             std::process::exit(code);
         }
-    
+
         e.unwrap()
     }
 }
@@ -101,7 +101,7 @@ impl Net
         {
             system::init()?;
         }
-        
+
         system::net_info()
     }
 }
@@ -151,7 +151,7 @@ impl std::fmt::Display for Host
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
-        write!(f,"HOST: {}",self.hostname)
+        write!(f, "HOST: {}", self.hostname)
     }
 }
 

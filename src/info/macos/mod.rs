@@ -24,8 +24,8 @@ pub use cpu::*;
 
 mod memory;
 use libc::{
-    c_void, connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, sysctl, AF_INET, CTL_HW,
-    CTL_KERN, HW_MODEL, KERN_HOSTNAME, SOCK_DGRAM, close
+    c_void, close, connect, getsockname, in_addr, sockaddr, sockaddr_in, socket, sysctl, AF_INET,
+    CTL_HW, CTL_KERN, HW_MODEL, KERN_HOSTNAME, SOCK_DGRAM,
 };
 pub use memory::*;
 
@@ -101,10 +101,9 @@ pub fn hostname_info() -> Result<Host, InfoError>
         });
     }
     let buffer = buffer.map(|char| char as u8);
-    
-    Ok(Host
-    {
-        hostname: std::str::from_utf8(&buffer).unwrap().trim().to_string()
+
+    Ok(Host {
+        hostname: std::str::from_utf8(&buffer).unwrap().trim().to_string(),
     })
 }
 
@@ -148,8 +147,7 @@ pub fn motherboard_info() -> Result<BaseBoard, InfoError>
         }
     };
 
-    Ok(BaseBoard
-    {
+    Ok(BaseBoard {
         model,
         vendor: String::new(),
     })
@@ -245,5 +243,5 @@ pub fn net_info() -> Result<Net, InfoError>
 
     let local_ip = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
-    Ok(Net{local_ip})
+    Ok(Net { local_ip })
 }

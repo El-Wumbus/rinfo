@@ -85,7 +85,7 @@ pub fn motherboard_info() -> Result<BaseBoard, InfoError>
     let vendor = "VENDOR_UNAVAILABLE";
 
     // TODO: Grab the motherboard info
-    Ok(BaseBoard {model, vendor})
+    Ok(BaseBoard { model, vendor })
 }
 
 /// Get the computer's hostname
@@ -115,5 +115,5 @@ pub fn hostname_info() -> Result<Host, InfoError>
         Err(e) => return Err(InfoError::General(format!("Invalid UTF-8 sequence: {e}"))),
     };
 
-    Ok(Host{hostname})
+    Ok(Host { hostname })
 }

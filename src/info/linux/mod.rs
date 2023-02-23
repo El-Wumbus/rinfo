@@ -142,8 +142,8 @@ pub fn hostname_info() -> Result<Host, InfoError>
         });
     }
 
-    Ok(Host{
-        hostname: hostname.trim().to_string()
+    Ok(Host {
+        hostname: hostname.trim().to_string(),
     })
 }
 
@@ -231,7 +231,5 @@ pub fn net_info() -> Result<Net, InfoError>
 
     let local_ip = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
 
-    Ok(Net {
-        local_ip,
-    })
+    Ok(Net { local_ip })
 }
