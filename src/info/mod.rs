@@ -354,23 +354,3 @@ impl Caller
 {
     pub fn read() -> Result<Self, InfoError> { system::caller_info() }
 }
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
-pub struct Gpu
-{
-    model: String,
-    vendor: String,
-}
-
-impl std::fmt::Display for Gpu
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
-    {
-        write!(f, "GPU: {} ({})", self.model, self.vendor)
-    }
-}
-
-impl Gpu
-{
-    pub fn read() -> Result<Self, InfoError> { system::gpu_info() }
-}
