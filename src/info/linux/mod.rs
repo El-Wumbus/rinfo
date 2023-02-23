@@ -172,8 +172,8 @@ pub fn motherboard_info() -> Result<BaseBoard, InfoError>
     }
 
     Ok(BaseBoard {
-        vendor,
-        model,
+        vendor: vendor.trim().to_string(),
+        model: model.trim().to_string(),
     })
 }
 
