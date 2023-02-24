@@ -78,10 +78,6 @@ int macos_get_caller(size_t pid, char* buffer, size_t buffer_len) {
 }
 
 
-_end:
-
-    return 0;
-}
 #else
 int macos_get_caller(size_t pid, char* buffer)
 {
