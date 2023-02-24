@@ -34,40 +34,42 @@ int macos_get_caller(size_t pid, char* buffer, size_t buffer_len)
         goto _end;
     }
 
-    for (cp = procargs; cp < &procargs[argmax_size]; cp++) {
-        if (*cp == '\0') {
-            break;
-        }
-    }
+    /* Find the end of the first argument string */
+    for (cp = procargs; *cp != '\0'; cp++)
+        ;
 
-    if (cp == &procargs[argmax_size]) {
-        free(procargs);
-        goto _end;
-    }
+    /* Find the start of the second argument string */
+    for (; cp < &procargs[argmax_size] && *cp == '\0'; cp++)
+        ;
 
-    for (; cp < &procargs[argmax_size]; cp++) {
-        if (*cp != '\0') {
-            break;
-        }
-    }
-
-    if (cp == &procargs[argmax_size]) {
-        free(procargs);
-        goto _end;
-    }
+    /* Find the end of the second argument string */
+    for (thiscmd = cp; cp < &procargs[argmax_size] && *cp != '\0'; cp++)
+        ;
 
     /* Strip off any path that was specified */
-    for (thiscmd = cp; (cp < &procargs[argmax_size]) && (*cp != '\0'); cp++) {
-        if (*cp == '/') {
-            thiscmd = cp + 1;
-        }
+    for (; thiscmd < cp && *thiscmd != '/'; thiscmd++)
+        ;
+
+    if (thiscmd == cp) {
+        free(procargs);
+        goto _end;
     }
 
-    if (buffer_len < strlen(thiscmd) + 1)
+    size_t len = cp - thiscmd;
+    if (buffer_len <= len) {
+        free(procargs);
         return -2;
-    else
-        strcpy(buffer, thiscmd);
-    goto _end;
+    }
+
+    memcpy(buffer, thiscmd, len);
+    buffer[len] = '\0';
+
+    free(procargs);
+    return 0;
+
+_end:
+    return 0;
+}
 
 _end:
 
