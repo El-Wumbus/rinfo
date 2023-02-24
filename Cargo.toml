@@ -39,3 +39,4 @@ features = [
 [build-dependencies]
 bindgen = "0.64"
 cc = { version = "1.0", features = ["parallel"] }
+glob = "*"
