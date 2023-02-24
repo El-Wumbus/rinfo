@@ -228,8 +228,7 @@ pub fn net_info() -> Result<Net, InfoError>
     }
 
     unsafe { close(sock) };
-
-    let local_ip = format!("{} (IPV4)", common::int_to_ipv4(name.sin_addr.s_addr));
-
-    Ok(Net { local_ip })
+    Ok(Net {
+        local_ip: common::int_to_ipv4(name.sin_addr.s_addr),
+    })
 }

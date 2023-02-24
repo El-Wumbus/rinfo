@@ -42,26 +42,23 @@ pub fn print_with_logo(os: OsArt, s: &str)
 /// Returns the length of the longest line in the string
 fn min_max_line_len(s: &str) -> (usize, usize)
 {
-    let mut max = 0;
-    let mut min = s.split('\n').next().unwrap_or("").len();
-
-    for line in s.split('\n')
+    let mut max_len = 0;
+    let mut min_len = usize::max_value();
+    for line in s.lines()
     {
         let len = line.len();
-
-        if len > max
+        if len > max_len
         {
-            max = len;
+            max_len = len;
         }
-
-        if len < min
+        if len < min_len
         {
-            min = len;
+            min_len = len;
         }
     }
-
-    (min, max)
+    (min_len, max_len)
 }
+
 
 fn with_both(first: &str, second: &str) -> String
 {
@@ -74,8 +71,7 @@ fn with_both(first: &str, second: &str) -> String
     let mut i = 0;
     while i < first.len() || i < second.len()
     {
-        let 
-        fir = first.get(i).unwrap_or(&"");
+        let fir = first.get(i).unwrap_or(&"");
         let sec = second.get(i).unwrap_or(&"");
 
         s.push_str(fir);

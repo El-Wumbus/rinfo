@@ -59,113 +59,32 @@ impl InfoError
 {
     pub fn report<T>(e: Result<T, Self>) -> T
     {
-        if e.is_err()
+        match e
         {
-            let e = e.err().unwrap();
-            let code = match e
+            Err(e) =>
             {
-                Self::FileParseError { path: _, reason: _ } => 65,
-                Self::Sysctl { name: _ } => 71,
-                Self::MissingFile { path: _ } => 72,
-                Self::FileRead { path: _ } => 74,
-                _ => 64,
-            };
+                let code = match e
+                {
+                    Self::FileParseError { path: _, reason: _ } => 65,
+                    Self::Sysctl { name: _ } => 71,
+                    Self::MissingFile { path: _ } => 72,
+                    Self::FileRead { path: _ } => 74,
+                    _ => 64,
+                };
 
-            eprintln!("{e}");
-            std::process::exit(code);
+                eprintln!("{e}");
+                std::process::exit(code);
+            }
+            Ok(x) => x,
         }
-
-        e.unwrap()
     }
 }
 
-
-pub struct Net
+pub trait Information
 {
-    local_ip: String,
-}
-
-impl std::fmt::Display for Net
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
-    {
-        write!(f, "LAN: {} (IPV4)", self.local_ip)
-    }
-}
-
-impl Net
-{
-    pub fn read() -> Result<Self, InfoError>
-    {
-        if !system::initialized()
-        {
-            system::init()?;
-        }
-
-        system::net_info()
-    }
-}
-
-pub struct BaseBoard
-{
-    pub model: String,
-    pub vendor: String,
-}
-
-impl std::fmt::Display for BaseBoard
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
-    {
-        let vendor = if self.vendor.is_empty()
-        {
-            self.vendor.clone()
-        }
-        else
-        {
-            format!(" ({})", self.vendor)
-        };
-
-        write!(f, "BOARD {}{vendor}", self.model)
-    }
-}
-
-impl BaseBoard
-{
-    pub fn read() -> Result<Self, InfoError>
-    {
-        if !system::initialized()
-        {
-            system::init()?;
-        }
-
-        system::motherboard_info()
-    }
-}
-
-pub struct Host
-{
-    pub hostname: String,
-}
-
-impl std::fmt::Display for Host
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
-    {
-        write!(f, "HOST: {}", self.hostname)
-    }
-}
-
-impl Host
-{
-    pub fn read() -> Result<Self, InfoError>
-    {
-        if !system::initialized()
-        {
-            system::init()?;
-        }
-
-        system::hostname_info()
-    }
+    fn read() -> Result<Self, InfoError>
+    where
+        Self: Sized;
 }
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Default)]
@@ -187,6 +106,202 @@ pub struct Cpu
     pub clock_rate: f64,
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default, Copy)]
+pub struct Memory
+{
+    /// Total memory in Bytes
+    pub total: u64,
+
+    /// Available memory in Bytes
+    pub available: u64,
+
+    /// Used memory in Bytes
+    pub used: u64,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default, Copy)]
+pub enum OsKind
+{
+    Linux,
+    Windows,
+    MacOs,
+    FreeBsd,
+
+    #[default]
+    Unknown,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
+pub struct Net
+{
+    /// The local IP address used to access the internet
+    local_ip: String,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
+/// Information relating to the Baseboard (Motherboard)
+pub struct BaseBoard
+{
+    /// The name of the board
+    pub model: String,
+
+    /// The board vendor
+    pub vendor: String,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
+pub struct Host
+{
+    /// Name of the host PC
+    pub hostname: String,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
+pub struct Caller
+{
+    /// The user running this program
+    name: String,
+
+    /// The shell running the program
+    shell: String,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default)]
+pub struct OperatingSystem
+{
+    /// Display name of the OS
+    pub name: String,
+
+    /// The kind of OS
+    pub kind: OsKind,
+
+    /// The OS art
+    pub art: printing::OsArt,
+}
+
+impl Information for Net
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
+        system::net_info()
+    }
+}
+
+impl Information for BaseBoard
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
+        system::motherboard_info()
+    }
+}
+
+impl Information for Host
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
+        system::hostname_info()
+    }
+}
+
+impl Information for Cpu
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
+        system::cpu_info()
+    }
+}
+
+impl Information for Memory
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        if !system::initialized()
+        {
+            system::init()?;
+        }
+
+        system::memory_info()
+    }
+}
+
+impl Information for OperatingSystem
+{
+    // TODO: FINISH
+    fn read() -> Result<Self, InfoError>
+    {
+        let kind = OsKind::read()?;
+        let (name, art) = system::os_info()?;
+
+        Ok(Self { name, kind, art })
+    }
+}
+
+impl Information for OsKind
+{
+    fn read() -> Result<Self, InfoError>
+    {
+        Ok(match std::env::consts::OS
+        {
+            "linux" => Self::Linux,
+            "windows" => Self::Windows,
+            "macos" => Self::MacOs,
+            "freebsd" => Self::FreeBsd,
+
+            _ => Self::default(),
+        })
+    }
+}
+
+impl Information for Caller
+{
+    fn read() -> Result<Self, InfoError> { system::caller_info() }
+}
+
+impl std::fmt::Display for BaseBoard
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        let vendor = if self.vendor.is_empty()
+        {
+            self.vendor.clone()
+        }
+        else
+        {
+            format!(" ({})", self.vendor)
+        };
+
+        write!(f, "BOARD {}{vendor}", self.model)
+    }
+}
+
+impl std::fmt::Display for Host
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "HOST: {}", self.hostname)
+    }
+}
+
 impl std::fmt::Display for Cpu
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
@@ -206,32 +321,6 @@ impl std::fmt::Display for Cpu
     }
 }
 
-impl Cpu
-{
-    pub fn read() -> Result<Self, InfoError>
-    {
-        if !system::initialized()
-        {
-            system::init()?;
-        }
-
-        system::cpu_info()
-    }
-}
-
-#[derive(Debug, PartialEq, PartialOrd, Clone, Default)]
-pub struct Memory
-{
-    /// Total memory in Bytes
-    pub total: u64,
-
-    /// Available memory in Bytes
-    pub available: u64,
-
-    /// Used memory in Bytes
-    pub used: u64,
-}
-
 impl std::fmt::Display for Memory
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
@@ -246,72 +335,11 @@ impl std::fmt::Display for Memory
     }
 }
 
-impl Memory
-{
-    pub fn read() -> Result<Self, InfoError>
-    {
-        if !system::initialized()
-        {
-            system::init()?;
-        }
-
-        system::memory_info()
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default)]
-pub struct OperatingSystem
-{
-    pub name: String,
-    pub kind: OsKind,
-    pub art: printing::OsArt,
-}
-
 impl std::fmt::Display for OperatingSystem
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
         write!(f, "OS: {} ({})", self.name, self.kind)
-    }
-}
-
-impl OperatingSystem
-{
-    // TODO: FINISH
-    pub fn read() -> Result<Self, InfoError>
-    {
-        let kind = OsKind::read();
-        let (name, art) = system::os_info()?;
-
-        Ok(Self { name, kind, art })
-    }
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Default, Copy)]
-pub enum OsKind
-{
-    Linux,
-    Windows,
-    MacOs,
-    FreeBsd,
-
-    #[default]
-    Unknown,
-}
-
-impl OsKind
-{
-    pub fn read() -> Self
-    {
-        match std::env::consts::OS
-        {
-            "linux" => Self::Linux,
-            "windows" => Self::Windows,
-            "macos" => Self::MacOs,
-            "freebsd" => Self::FreeBsd,
-
-            _ => Self::default(),
-        }
     }
 }
 
@@ -332,14 +360,12 @@ impl std::fmt::Display for OsKind
     }
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Default)]
-pub struct Caller
+impl std::fmt::Display for Net
 {
-    /// The user running this program
-    name: String,
-
-    /// The shell running the program
-    shell: String,
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        write!(f, "LAN: {} (IPV4)", self.local_ip)
+    }
 }
 
 impl std::fmt::Display for Caller
@@ -348,9 +374,4 @@ impl std::fmt::Display for Caller
     {
         write!(f, "USER: {}\nSHELL: {}", self.name, self.shell)
     }
-}
-
-impl Caller
-{
-    pub fn read() -> Result<Self, InfoError> { system::caller_info() }
 }

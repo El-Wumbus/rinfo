@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::rc::Rc;
 
 use super::*;
@@ -42,29 +43,26 @@ pub fn cpu_info() -> Result<Cpu, InfoError>
     })
 }
 
-/// Get the cpu clock rate
+
 fn cpu_clock(cpu_info: Rc<String>) -> Result<f64, InfoError>
 {
-    let mut cpu_info_file = cpu_info.split('\n');
-
-    let cpu_clock_line = match cpu_info_file.find(|line| line.starts_with("cpu MHz"))
-    {
-        Some(x) => x,
-        None =>
-        {
-            return Err(InfoError::General(
-                "Couldn't find line that starts with 'cpu MHz'".to_string(),
-            ))
-        }
-    };
-
-    let s = cpu_clock_line.split(':').last().unwrap_or_default().trim();
-
-    match s.parse::<f64>()
-    {
-        Ok(x) => Ok(x),
-        Err(e) => Err(InfoError::General(format!("{e} '{s}'"))),
-    }
+    let re = Regex::new(r"^cpu MHz\s*:\s*(\d+(\.\d+)?)$").unwrap();
+    let cpu_clock_line = cpu_info
+        .lines()
+        .find(|line| re.is_match(line))
+        .ok_or_else(|| {
+            InfoError::General("Couldn't find CPU clock speed in CPU info".to_owned())
+        })?;
+    let clock_speed_str = cpu_clock_line
+        .split(':')
+        .nth(1)
+        .ok_or_else(|| {
+            InfoError::General("Couldn't find CPU clock speed value in CPU info".to_owned())
+        })?
+        .trim();
+    clock_speed_str
+        .parse()
+        .map_err(|e| InfoError::General(format!("Couldn't parse CPU clock speed: {e}")))
 }
 
 /// Get the core and thread count `(core, thread)`
@@ -96,25 +94,20 @@ fn cpu_count(cpu_info: Rc<String>) -> (usize, usize)
 /// Get the cpu model name
 fn cpu_name(cpu_info: Rc<String>) -> Result<String, InfoError>
 {
-    let mut cpu_info_file = cpu_info.split('\n');
+    let model_name_line = cpu_info
+        .lines()
+        .find(|line| line.starts_with("model name"))
+        .ok_or_else(|| {
+            InfoError::General("Couldn't find line that starts with 'model name'".to_string())
+        })?;
 
-    let model_name_line = match cpu_info_file.find(|line| line.starts_with("model name"))
-    {
-        Some(x) => x,
-        None =>
-        {
-            return Err(InfoError::General(
-                "Couldn't find line that starts with 'model name'".to_string(),
-            ))
-        }
-    };
-
-    Ok(model_name_line
+    let model_name = model_name_line
         .split(':')
-        .last()
-        .unwrap_or_default()
-        .trim()
-        .to_string())
+        .nth(1)
+        .ok_or_else(|| InfoError::General("Invalid model name format".to_string()))?
+        .trim();
+
+    Ok(model_name.to_string())
 }
 
 /// Returns the cpu uptime (in seconds)

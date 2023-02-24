@@ -1,11 +1,24 @@
 #![allow(non_camel_case_types)]
-use std::fs::read_to_string;
 
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 mod info;
 mod printing;
 use info::*;
+use std::io::Write;
+
+/// Conditionally append the result of a function to the string to be later
+/// printed.
+macro_rules! add_info {
+    ($vec:expr, $cond:expr, $func:expr) => {
+        if $cond
+        {
+            let result = $func();
+            let info = InfoError::report(result);
+            write!($vec, "\n{}", info).unwrap();
+        }
+    };
+}
 
 #[derive(
     Debug, StructOpt, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default,
@@ -53,106 +66,60 @@ struct Config
 
 impl Config
 {
+    /// Combine mutliple configs in a way that prioritizes the `other`'s true
+    /// fields over `self`'s false ones.
     pub fn combine(&mut self, other: Self)
     {
-        if !self.omit_art && other.omit_art
-        {
-            self.omit_art = true;
-        }
-        if !self.omit_caller && other.omit_caller
-        {
-            self.omit_caller = true;
-        }
-        if !self.omit_cpu && other.omit_cpu
-        {
-            self.omit_cpu = true;
-        }
-        if !self.omit_hostname && other.omit_hostname
-        {
-            self.omit_hostname = true;
-        }
-        if !self.omit_motherboard && other.omit_motherboard
-        {
-            self.omit_motherboard = true;
-        }
-        if !self.omit_os && other.omit_os
-        {
-            self.omit_os = true;
-        }
-        if !self.vertical_art && other.vertical_art
-        {
-            self.vertical_art = true;
-        }
-        if !self.omit_ip && other.omit_ip
-        {
-            self.omit_ip = true;
-        }
+        self.omit_art |= !self.omit_art && other.omit_art;
+        self.omit_caller |= !self.omit_caller && other.omit_caller;
+        self.omit_cpu |= !self.omit_cpu && other.omit_cpu;
+        self.omit_hostname |= !self.omit_hostname && other.omit_hostname;
+        self.omit_motherboard |= !self.omit_motherboard && other.omit_motherboard;
+        self.omit_os |= !self.omit_os && other.omit_os;
+        self.vertical_art |= !self.vertical_art && other.vertical_art;
+        self.omit_ip |= !self.omit_ip && other.omit_ip;
     }
 }
 
 fn main()
 {
-    let mut config = Config::default();
-
     // Load configuration
+    let mut config = Config::default();
     if let Some(config_dir) = dirs::config_dir()
     {
         let config_file = config_dir.join("SBII").join("rinfo.toml");
-        if config_file.is_file()
+        if let Ok(contents) = std::fs::read_to_string(config_file)
         {
-            if let Ok(contents) = read_to_string(config_file)
+            match toml::from_str(&contents)
             {
-                match toml::from_str(&contents)
+                Ok(config_from_file) =>
                 {
-                    Ok(x) => config = x,
-                    Err(e) => eprintln!("Couldn't load config file: {e}"),
+                    config.combine(config_from_file);
+                }
+                Err(e) =>
+                {
+                    eprintln!("Couldn't parse config file: {e:?}");
                 }
             }
         }
     }
+
     config.combine(Config::from_args());
 
 
     // Build information string
-    let mut info_str = String::new();
+    let mut info_vec = Vec::new();
     let os = InfoError::report(OperatingSystem::read());
 
-    if !config.omit_cpu
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(Cpu::read())));
-    }
+    add_info!(info_vec, !config.omit_cpu, &Cpu::read);
+    add_info!(info_vec, !config.omit_ram, &Memory::read);
+    add_info!(info_vec, !config.omit_motherboard, &BaseBoard::read);
+    add_info!(info_vec, !config.omit_ip, &Net::read);
+    add_info!(info_vec, !config.omit_hostname, &Host::read);
+    add_info!(info_vec, !config.omit_caller, &Caller::read);
+    add_info!(info_vec, !config.omit_os, &|| Ok(os.clone()));
 
-    if !config.omit_ram
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(Memory::read())));
-    }
-
-    if !config.omit_motherboard
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(BaseBoard::read())));
-    }
-
-    if !config.omit_ip
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(Net::read())));
-    }
-
-    if !config.omit_hostname
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(Host::read())));
-    }
-
-    if !config.omit_caller
-    {
-        info_str.push_str(&format!("\n{}", InfoError::report(Caller::read())));
-    }
-
-    if !config.omit_os
-    {
-        info_str.push_str(&format!("\n{os}"));
-    }
-
-    info_str = info_str.trim().to_string();
+    let info_str = String::from_utf8_lossy(&info_vec).trim_start().to_string(); // We `trim_start()` to trim the leading newline
 
     // Print information
     if config.omit_art
