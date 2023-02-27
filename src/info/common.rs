@@ -114,8 +114,8 @@ impl<'a, I> UniqueIterator<'a> for I where I: Iterator<Item = &'a str> {}
 mod cfg
 {
     use super::*;
-    const IP1 = "8.8.8.8";
-    const IP2 = "192.168.1.19";
+    const IP1:&str = "8.8.8.8";
+    const IP2:&str = "192.168.1.19";
 
     #[test]
     fn test_ipv4_to_int()
