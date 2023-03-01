@@ -89,10 +89,10 @@ jobs:
           dist-args: --artifacts=global
           install-dist: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.0.3/cargo-dist-v0.0.3-installer.sh | sh
         - os: macos-11
-          dist-args: --artifacts=local --target=aarch64-apple-darwin --target=x86_64-apple-darwin
+          dist-args: --artifacts=local --target=x86_64-apple-darwin
           install-dist: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.0.3/cargo-dist-v0.0.3-installer.sh | sh
         - os: ubuntu-20.04
-          dist-args: --artifacts=local --target=x86_64-unknown-linux-gnu --target=x86_64-unknown-linux-musl
+          dist-args: --artifacts=local --target=x86_64-unknown-linux-gnu
           install-dist: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/axodotdev/cargo-dist/releases/download/v0.0.3/cargo-dist-v0.0.3-installer.sh | sh
 
     runs-on: ${{ matrix.os }}
