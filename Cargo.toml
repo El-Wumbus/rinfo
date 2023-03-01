@@ -43,7 +43,7 @@ features = [
 [build-dependencies]
 bindgen = "0.64"
 cc = { version = "1.0", features = ["parallel"] }
-glob = "*"
+glob = "0.3.1"
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
