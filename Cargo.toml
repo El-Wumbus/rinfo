@@ -4,7 +4,7 @@ description = "Get basic information about your system from the command-line."
 license = "Apache-2.0"
 authors = ["Decator <decator.c@proton.me>"]
 repository = "https://github.com/Sir-Bobert-II/rinfo"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 
 
