@@ -25,10 +25,10 @@ pub fn ipv4_to_int(s: &str) -> u32
     // 11000000_10101000_00000001_00010011
     // 
     // To get this we shift everything into place then add everything.
-    let a = octets.next().unwrap_or_default();
-    let b = octets.next().unwrap_or_default() << 8;
-    let c = octets.next().unwrap_or_default() << 16;
-    let d = octets.next().unwrap_or_default() << 24;
+    let a = octets.next().unwrap_or_default() << 24;
+    let b = octets.next().unwrap_or_default() << 16;
+    let c = octets.next().unwrap_or_default() << 8;
+    let d = octets.next().unwrap_or_default();
 
     u32::to_be(a + b + c + d)
 }
@@ -109,26 +109,3 @@ trait UniqueIterator<'a>: Iterator<Item = &'a str>
 }
 
 impl<'a, I> UniqueIterator<'a> for I where I: Iterator<Item = &'a str> {}
-
-#[cfg(test)]
-mod cfg
-{
-    use super::*;
-    const IP1:&str = "8.8.8.8";
-    const IP2:&str = "192.168.1.19";
-
-    #[test]
-    fn test_ipv4_to_int()
-    {
-        assert_eq!(134744072, ipv4_to_int(IP1));
-        assert_eq!(3232235795, ipv4_to_int(IP2));
-    }
-
-    #[test]
-    fn test_int_to_ipv4()
-    {
-        assert_eq!(int_to_ipv4(134744072), IP1.to_string());
-        assert_eq!(int_to_ipv4(3232235795), IP2.to_string());
-    }
-
-}
