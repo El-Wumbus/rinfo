@@ -98,10 +98,16 @@ despite the configuration file specifying otherwise.
 
 ## Installing
 
-When there's a full release of `rinfo`, there will a Windows installer and built packages. Until then,
-manual compilation will have to suffice (except on Arch Linux, there's a [pkgbuild][PKGBUILD]).
+When there's a fuller release of `rinfo`, there will a Windows installer.
 
-### Linux & MacOS
+### Releases
+
+You can pick the latest release from the [GitHub Releases](https://github.com/Sir-Bobert-II/rinfo/releases/latest).
+Windows doesn't have a compiled release because it's not stablized and isn't feature-ready. You'll need to [compile](#manual-compilation) on windows.
+
+### Manual compilation
+
+#### Linux & MacOS
 
 [Arch Linux](#arch-lnux) does have differing instructions, skip there if needed.
 
@@ -123,7 +129,7 @@ manual compilation will have to suffice (except on Arch Linux, there's a [pkgbui
     install -Dvm755 target/release/rinfo /usr/bin/rinfo
     ```
 
-#### Arch Linux
+##### Arch Linux
 
 1. Download the [`PKGBUILD`][PKGBUILD]
     
