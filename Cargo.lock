@@ -714,7 +714,7 @@ checksum = "456c603be3e8d448b072f410900c09faf164fbce2d480456f50eea6e25f9c848"
 
 [[package]]
 name = "rinfo"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "bindgen",
  "cc",
